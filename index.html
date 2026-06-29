@@ -193,9 +193,9 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 .board-col{display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:var(--bg)}
 .board{display:grid;gap:4px}
 .cell{width:50px;height:50px;border-radius:9px;transition:transform .12s,box-shadow .12s;position:relative;display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid transparent;box-shadow:0 3px 0 rgba(0,0,0,.15);cursor:default}
-.cell.p1{background:var(--p1)!important;border-color:#f48080!important;box-shadow:0 3px 0 rgba(180,20,20,.25)!important}
-.cell.ai{background:var(--accent)!important;border-color:#6aaad8!important;box-shadow:0 3px 0 rgba(20,60,140,.25)!important}
-.cell.tower{background:#f0b429!important;border-color:#f7d87a!important}
+.cell.p1{background:var(--p1)!important;border-color:#f48080!important;box-shadow:0 3px 0 rgba(180,20,20,.25)!important;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0,rgba(255,255,255,.12) 1px,transparent 0,transparent 50%);background-size:6px 6px}
+.cell.ai{background:var(--accent)!important;border-color:#6aaad8!important;box-shadow:0 3px 0 rgba(20,60,140,.25)!important;background-image:radial-gradient(circle,rgba(255,255,255,.15) 1px,transparent 1px);background-size:8px 8px}
+.cell.tower{background:#374151!important;border:3px dashed #f0b429!important;box-shadow:inset 0 0 8px rgba(240,180,40,.2)!important}
 .cell.placeable{cursor:crosshair;animation:glow .8s ease-in-out infinite alternate}
 @keyframes glow{from{box-shadow:0 3px 0 rgba(0,0,0,.15)}to{box-shadow:0 3px 16px rgba(240,180,40,.7)}}
 .cell.preview{animation:prev .55s ease-in-out infinite alternate}
@@ -541,15 +541,15 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
         <div class="color-grid" id="colorGrid"></div>
       </div>
       <div class="score-block">
-        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--p1)"></div><span class="sn">You</span></div><span class="sv" id="p1Score">1</span></div>
+        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--p1)"></div><span class="sn" style="color:var(--p1);font-weight:700">&#128100; You</span></div><span class="sv" id="p1Score">1</span></div>
         <div class="sb"><div class="sf" id="p1Bar" style="background:var(--p1);width:1%"></div></div>
-        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--accent)"></div><span class="sn" id="aiScoreName">AI</span></div><span class="sv" id="aiScore">1</span></div>
+        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--accent)"></div><span class="sn" id="aiScoreName" style="color:var(--accent);font-weight:700">&#129302; AI</span></div><span class="sv" id="aiScore">1</span></div>
         <div class="sb"><div class="sf" id="aiBar" style="background:var(--accent);width:1%"></div></div>
         <div class="cell-ct" id="cellCount">2 / 64 claimed</div>
       </div>
       <div class="tower-block" id="towerBlock">
         <div class="col-lbl">Tower defense</div>
-        <button class="t-btn" id="towerBtn" onclick="toggleTower()">🏰 Place tower</button>
+        <button class="t-btn" id="towerBtn" onclick="toggleTower()" title="Creates a wall on a neutral tile. The flood-fill CANNOT pass through it - tiles on the other side stay safe.">🏰 Place tower</button>
         <div class="t-left" id="towerLeft">3 towers remaining</div>
       </div>
     </div>
@@ -1301,14 +1301,14 @@ function cellClick(i){
   owner[i]=3;towersLeft--;towersPlaced++;placeTower=false;
   document.getElementById('towerBtn').classList.remove('on');
   document.getElementById('towerLeft').textContent=towersLeft+' towers remaining';
-  sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);renderBoard();setStatus('Tower placed! Now pick a color.');
+  sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);renderBoard();setStatus("Wall built! The AI's flood cannot pass through this tile now.");
 }
 function toggleTower(){
   if(turn!==1||over)return;
   if(towersLeft<=0){setStatus('No towers left!');return;}
   placeTower=!placeTower;
   document.getElementById('towerBtn').classList.toggle('on',placeTower);
-  renderBoard();setStatus(placeTower?'Click any neutral tile to place a tower.':'Tower mode off — hover a color to preview.');
+  renderBoard();setStatus(placeTower?'Tower mode ON — click any neutral tile to build a wall. The flood fill cannot pass through towers.':'Tower mode off — hover a color to preview.');
 }
 
 // ── AI ────────────────────────────────────────────────────────────────────────
