@@ -339,6 +339,41 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
   .cell{width:34px;height:34px;border-radius:6px;font-size:12px}
   .board{gap:3px}
 }
+
+/* Visual rules */
+.rules-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--R);padding:16px;margin-bottom:20px}
+.rules-card h3{font-size:13px;font-weight:700;color:var(--accent-dk);margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.rule-visual{display:flex;align-items:flex-start;gap:14px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.rule-visual:last-child{margin-bottom:0;padding-bottom:0;border-bottom:none}
+.rv-num{width:26px;height:26px;border-radius:50%;background:var(--surf2);border:2px solid var(--border-md);color:var(--accent);font-size:13px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.rv-text{font-size:12px;color:var(--text2);line-height:1.6;flex:1}
+.rv-text strong{color:var(--text)}
+.rv-text em{color:var(--accent);font-style:normal;display:block;margin-top:3px;font-size:11px}
+.rv-right{flex-shrink:0;text-align:center}
+.mini-board{display:grid;grid-template-columns:repeat(4,24px);gap:3px}
+.mc{width:24px;height:24px;border-radius:5px;border:2px solid transparent;font-size:10px;display:flex;align-items:center;justify-content:center;transition:all .35s;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.mc.glow{animation:mglow .7s ease-in-out infinite alternate}
+@keyframes mglow{from{box-shadow:0 2px 0 rgba(0,0,0,.12)}to{box-shadow:0 0 12px rgba(46,116,181,.6),inset 0 0 0 2px rgba(255,255,255,.4)}}
+.mini-cap{font-size:10px;color:var(--text3);margin-top:5px;font-style:italic}
+.tower-demo{display:flex;align-items:center;gap:5px;justify-content:center}
+.td-tile{width:28px;height:28px;border-radius:6px;border:2px solid rgba(0,0,0,.1);font-size:13px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 0 rgba(0,0,0,.12)}
+.td-arrow{font-size:13px;color:var(--text3);font-weight:700}
+.td-cross{font-size:16px;color:#c0392b;font-weight:900}
+
+/* First-move tip (in-game board overlay) */
+.first-tip{background:var(--accent-dk);color:#fff;border-radius:var(--r);padding:10px 14px;margin-bottom:10px;font-size:12px;line-height:1.55;display:flex;align-items:flex-start;gap:9px;animation:ftpulse 2s ease-in-out infinite}
+@keyframes ftpulse{0%,100%{box-shadow:0 0 0 0 rgba(46,116,181,0)}50%{box-shadow:0 0 0 4px rgba(46,116,181,.3)}}
+.ft-icon{font-size:18px;flex-shrink:0}
+.ft-steps{display:flex;flex-direction:column;gap:3px}
+.ft-step{display:flex;align-items:center;gap:6px;font-size:11px;opacity:.75}
+.ft-step.active{opacity:1;font-weight:600}
+.ft-step::before{content:'→';opacity:.5}
+.ft-dismiss{margin-top:6px;font-size:10px;opacity:.5;cursor:pointer;text-decoration:underline}
+
+/* Scenario prompt */
+.scen-prompt{border-radius:var(--r);padding:9px 11px;font-size:11px;line-height:1.55;border-left:3px solid;margin-top:6px;display:none}
+.scen-prompt.on{display:block}
+.sp-q{font-weight:700;margin-bottom:3px;font-size:11px}
 </style>
 </head>
 <body>
@@ -438,15 +473,42 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
   <div class="sec-head">The 5 Big Ideas of AI you'll encounter</div>
   <div class="big5-row" id="big5Row"></div>
 
-  <!-- Rules -->
+  <!-- Rules (visual) -->
   <div class="rules-card">
-    <h3>📋 How to play</h3>
-    <div class="rule-row"><span class="rule-icon">🗺️</span><span>8×8 board of colored tiles. You start <strong>bottom-left 👤</strong>, the AI starts <strong>top-right 🤖</strong>.</span></div>
-    <div class="rule-row"><span class="rule-icon">🎨</span><span><strong>Hover a color</strong> to preview which tiles you'd claim. <strong>Click to pick.</strong> All touching tiles of that color join your territory.</span></div>
-    <div class="rule-row"><span class="rule-icon">🏰</span><span><strong>Place up to 3 towers</strong> on neutral tiles to block the AI. Mirrors the idea of constraints in real AI systems.</span></div>
-    <div class="rule-row"><span class="rule-icon">🏆</span><span>Claim <strong>more than half the board</strong> to win — or hold the most tiles when the board is full.</span></div>
-    <div class="rule-row"><span class="rule-icon">🧭</span><span>The <strong>AI Coach</strong> explains which Big Idea is in play after each move, in plain language.</span></div>
+    <h3>How to play &mdash; 3 concrete rules</h3>
+    <div class="rule-visual">
+      <div style="flex:1"><div style="display:flex;align-items:flex-start;gap:10px">
+        <div class="rv-num">1</div>
+        <div class="rv-text"><strong>Pick a color to flood your territory</strong><br>
+        You start bottom-left (the red corner). The AI starts top-right (the blue corner).
+        Each turn, pick a color. Every tile of that color <em>touching your territory</em> instantly joins you.
+        Hover a color button first to preview exactly which tiles you would gain before committing.
+        </div></div></div>
+      <div class="rv-right"><div class="mini-board" id="miniBoard"></div><div class="mini-cap" id="miniCap">Hover = preview &rarr; click = claim</div></div>
+    </div>
+    <div class="rule-visual">
+      <div class="rv-num" style="background:var(--yellow-bg);color:#c9930a;border-color:var(--yellow-bd);font-size:14px;flex-shrink:0;margin-top:2px">&#x1F3F0;</div>
+      <div class="rv-text"><strong>Towers create impassable walls</strong><br>
+      Click the tower button, then click any neutral tile. A tower stops the flood-fill dead &mdash;
+      <strong>neither player can claim tiles on the other side of a tower</strong>, even if the right color is there.
+      Use towers to cut off the AI path to a large cluster. You get 3 per game.
+      </div>
+      <div class="rv-right"><div class="tower-demo">
+        <div class="td-tile" style="background:#2E74B5;border-color:#6aaad8">&#x1F916;</div>
+        <div class="td-arrow">&rarr;</div>
+        <div class="td-tile" style="background:#f0b429;border-color:#f7d87a">&#x1F3F0;</div>
+        <div class="td-cross">&#x2717;</div>
+        <div class="td-tile" style="background:#27ae60;border-color:#5ac985"></div>
+      </div><div class="mini-cap">AI flood stops here</div></div>
+    </div>
+    <div class="rule-visual">
+      <div class="rv-num" style="background:#e5f5ed;color:#1a7a4a;border-color:#8acfaa;font-size:14px;flex-shrink:0;margin-top:2px">&#x1F3C6;</div>
+      <div class="rv-text"><strong>Claim 33 of 64 tiles to win</strong><br>
+      Reach more than half the board at any point and the game ends instantly. Turns alternate &mdash; you go first, then the AI. The AI Coach on the right explains what the AI is thinking after each move.
+      </div>
+    </div>
   </div>
+
 
   <div class="start-row">
     <button class="start-btn" onclick="startGame()">Start Playing →</button>
@@ -494,6 +556,15 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 
     <!-- BOARD -->
     <div class="board-col">
+      <div class="first-tip" id="firstTip">
+        <span class="ft-icon">👆</span>
+        <div class="ft-steps">
+          <div class="ft-step active">Hover a color on the left panel to preview which tiles you would gain</div>
+          <div class="ft-step">Click the color to claim those tiles and expand your territory</div>
+          <div class="ft-step">Your corner is bottom-left (red) — AI starts top-right (blue)</div>
+          <div class="ft-dismiss" onclick="document.getElementById('firstTip').style.display='none'">Got it, hide this</div>
+        </div>
+      </div>
       <div class="board" id="board"></div>
     </div>
 
@@ -527,6 +598,10 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
           <div class="as"><span>Strategy</span><span id="aiStratStat">Greedy</span></div>
           <div class="as"><span>Last gain</span><span id="aiGainStat">—</span></div>
           <div class="thinking" id="aiThinking">Waiting for you to move first…</div>
+        </div>
+        <div class="scen-prompt" id="scenPrompt">
+          <div class="sp-q" id="scenPromptQ"></div>
+          <div id="scenPromptBody"></div>
         </div>
       </div>
 
@@ -930,6 +1005,144 @@ function showConsequence(playerWon){
   el.style.cssText='display:block;border-color:'+c+'44;background:'+c+'11';
   el.innerHTML='<div class="cons-head" style="color:'+c+'">'+currentPack.label+' — '+(playerWon?'AI deployed ✓':'AI failed to dominate')+'</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:7px">'+data+'</div>'+(cons.metrics||[]).map(m=>'<span class="cons-metric" style="background:'+c+'22;color:'+c+';border:1px solid '+c+'44">'+m+'</span>').join('');
 }
+// ── MINI BOARD DEMO (welcome screen) ─────────────────────────────────────────
+const DEMO_LAYOUT = [
+  [3,2,0,1],[2,3,2,3],[0,2,3,2],[0,0,2,3]
+];
+const DEMO_OWNED = new Set([12,13]); // row3col0, row3col1 = player (bottom-left)
+const DEMO_AI    = new Set([3]);     // row0col3 = AI (top-right)
+const DEMO_PREVIEW_PHASE = new Set([8,9,14]); // cells that preview (color 0 = green)
+let demoPhase = 0;
+
+function buildMiniBoard(){
+  const el = document.getElementById('miniBoard');
+  if(!el) return;
+  el.innerHTML = '';
+  for(let r=0;r<4;r++){
+    for(let c=0;c<4;c++){
+      const idx = r*4+c;
+      const cell = document.createElement('div');
+      cell.className = 'mc';
+      cell.dataset.idx = idx;
+      if(DEMO_OWNED.has(idx)){
+        cell.style.background = '#d64040';
+        cell.style.borderColor = '#f48080';
+        if(idx===12) cell.textContent = '👤';
+      } else if(DEMO_AI.has(idx)){
+        cell.style.background = '#2E74B5';
+        cell.style.borderColor = '#6aaad8';
+        cell.textContent = '🤖';
+      } else {
+        const col = DEMO_LAYOUT[r][c];
+        cell.style.background = ['#27ae60','#8e44ad','#e67e22','#f0b429','#2E74B5','#d64040'][col];
+        cell.style.borderColor = ['#5ac985','#a76dd5','#f0b070','#f7d87a','#6aaad8','#f48080'][col];
+        cell.style.opacity = '0.82';
+      }
+      el.appendChild(cell);
+    }
+  }
+  animateMiniBoard();
+}
+
+function animateMiniBoard(){
+  const el = document.getElementById('miniBoard');
+  const cap = document.getElementById('miniCap');
+  if(!el || !cap) return;
+  const cells = el.querySelectorAll('.mc');
+  // Phase 0: neutral board
+  // Phase 1: highlight preview (orange cells adjacent to player)
+  // Phase 2: claimed (those cells join player)
+  if(demoPhase===0){
+    cells.forEach(c=>c.classList.remove('glow'));
+    // Reset preview cells back to neutral
+    [8,9,14].forEach(i=>{
+      if(cells[i]){cells[i].style.background='#e67e22';cells[i].style.borderColor='#f0b070';cells[i].textContent='';cells[i].style.opacity='0.82';}
+    });
+    cap.textContent = 'Your corner (red) is bottom-left';
+  } else if(demoPhase===1){
+    [8,9,14].forEach(i=>{if(cells[i])cells[i].classList.add('glow');});
+    cap.textContent = 'Hover Orange → preview +3 tiles';
+  } else {
+    [8,9,14].forEach(i=>{
+      if(cells[i]){cells[i].classList.remove('glow');cells[i].style.background='#d64040';cells[i].style.borderColor='#f48080';cells[i].style.opacity='1';}
+    });
+    cap.textContent = 'Click → territory expands!';
+  }
+  demoPhase = (demoPhase+1)%3;
+  setTimeout(animateMiniBoard, 1600);
+}
+
+// ── SCENARIO PROMPTS ──────────────────────────────────────────────────────────
+const SCENARIO_PROMPTS = {
+  social:{
+    color:'#2E74B5',
+    ai:[
+      (c,g)=>'The algorithm just captured '+g+' '+CNAMES[c]+'-type content tiles. Those represent users now locked into that content stream. Did the AI choose what was engaging, or what was true?',
+      (c,g)=>'Notice: the AI grabbed the biggest '+CNAMES[c]+' cluster — pure engagement optimization. A human curator might have weighed reach vs. harm. The algorithm did not.',
+      (c,g)=>g+' more users are now seeing '+CNAMES[c]+' content. The AI did not ask whether it was accurate or diverse. It asked: which color gives me the most?'
+    ],
+    p1:[
+      (c,g)=>'You curated '+CNAMES[c]+' content for '+g+' user segments. What were you optimizing for — engagement, diversity, or truth? The algorithm does not know unless you tell it.',
+      (c,g)=>g+' '+CNAMES[c]+' tiles claimed. In a real feed algorithm, each tile is a user decision: what content they see next, and what they never see at all.'
+    ],
+    q:'What is the AI really optimizing for in your scenario?'
+  },
+  hospital:{
+    color:'#8b2020',
+    ai:[
+      (c,g)=>'The triage AI just automated '+g+' '+CNAMES[c]+' cases. Those patients will not see a human reviewer. Is that acceptable? At what acuity level should humans always be involved?',
+      (c,g)=>'Algorithm claimed '+g+' '+CNAMES[c]+' cases. In real ER settings, this means '+g+' patients whose care priority was set without a doctor seeing them first.',
+      (c,g)=>'Notice what the AI prioritized in the '+CNAMES[c]+' category. Did it pick the most urgent cases, or the ones that scored highest on its metric — which might not be the same thing?'
+    ],
+    p1:[
+      (c,g)=>'You routed '+g+' '+CNAMES[c]+' cases to human review. Each tile = a patient who will see a clinician before a decision is made. That has a cost: time. Is it worth it?',
+      (c,g)=>g+' '+CNAMES[c]+' cases under your guidance now. What criteria are you implicitly using to decide which cases need human judgment?'
+    ],
+    q:'Should an AI ever make a final medical decision without human review?'
+  },
+  hiring:{
+    color:'#1a7a4a',
+    ai:[
+      (c,g)=>'The algorithm advanced '+g+' '+CNAMES[c]+'-profile candidates. Ask: does this profile reflect your actual applicant pool, or just the candidates your historical data labeled as successful?',
+      (c,g)=>'Greedy shortlisting: the algorithm picked the '+CNAMES[c]+' cluster because it scored highest. But scoring highest on what? And who set those criteria?',
+      (c,g)=>g+' '+CNAMES[c]+' candidates moved forward. In real hiring, each rejected candidate is someone who never gets a call. The algorithm does not see that. You can.'
+    ],
+    p1:[
+      (c,g)=>'You advanced '+g+' '+CNAMES[c]+' candidates. What is your selection rationale? Skill match, background diversity, or something the algorithm cannot see on a resume?',
+      (c,g)=>g+' '+CNAMES[c]+' candidates in the pipeline. Would a human recruiter have made the same choices? What would they see that the algorithm missed?'
+    ],
+    q:'Who is the algorithm systematically not seeing?'
+  },
+  climate:{
+    color:'#6b3d8a',
+    ai:[
+      (c,g)=>'Algorithm allocated to '+g+' '+CNAMES[c]+' risk regions — highest projected economic impact. But economic projections systematically undervalue harm to low-GDP regions. Who was not counted?',
+      (c,g)=>g+' '+CNAMES[c]+' regions funded algorithmically. The most visible crises get funded. The slow-moving ones — aquifer depletion, gradual displacement — often do not score high enough.',
+      (c,g)=>'The AI just maximized measurable impact in '+CNAMES[c]+' regions. What is not measurable that still matters? Which regions would a human expert have overridden the algorithm for?'
+    ],
+    p1:[
+      (c,g)=>'You allocated to '+g+' '+CNAMES[c]+' risk regions. Were these the most urgent by human judgment, or the ones that showed up best in the data?',
+      (c,g)=>g+' regions funded. In climate allocation, the gap between "highest scoring" and "most urgent" can be a decade of displacement data that never made it into a spreadsheet.'
+    ],
+    q:'What does this scenario not measure that still matters for equity?'
+  }
+};
+
+function showScenPrompt(type, c, g){
+  const p = SCENARIO_PROMPTS[currentPack ? currentPack.id : 'social'];
+  if(!p) return;
+  const pool = type==='ai' ? p.ai : p.p1;
+  const msg = pool[Math.floor(Math.random()*pool.length)](c, g);
+  const el = document.getElementById('scenPrompt');
+  const q  = document.getElementById('scenPromptQ');
+  const b  = document.getElementById('scenPromptBody');
+  if(!el||!q||!b) return;
+  el.style.cssText = 'display:block;border-color:'+p.color+';background:'+p.color+'11';
+  q.style.color = p.color;
+  q.textContent = p.q;
+  b.style.cssText = 'font-size:11px;color:var(--text2);line-height:1.6;margin-top:4px';
+  b.textContent = msg;
+}
 // ── CONFETTI ─────────────────────────────────────────────────────────────────
 function confetti(){
   const cs=['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22','#f1c40f'];
@@ -1078,8 +1291,8 @@ function playerPick(c){
   clearPreview();
   if(nextP1Skip){nextP1Skip=false;setStatus('Your turn skipped — audit running. AI moves twice.');turn=2;updateTurn();doAI();return;}
   p1c=c;flood(1,c);p1Moves++;
-  playerColorPicks[c]=(playerColorPicks[c]||0)+1;
-  sPick();animateOwned(1);advanceCoach();recordHistory();checkEvent();checkWin();
+  playerColorPicks[c]=(playerColorPicks[c]||0)+1;document.getElementById('firstTip').style.display='none';
+  sPick();animateOwned(1);advanceCoach();recordHistory();checkEvent();checkWin();showScenPrompt('p1',c,territory(1));
   if(!over){turn=2;updateTurn();doAI();}
 }
 function cellClick(i){
@@ -1143,7 +1356,7 @@ function aiChoose(scores){
   COLS.forEach((_,c)=>{if(c===aic||c===p1c)return;if((scores[c]||0)>bestS){bestS=scores[c];best=c;}});
   return best>=0?best:(()=>{const av=COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c);return av[0]??0;})();
 }
-function showAIThinking(c,gain){
+function showAIThinking(c,gain){showScenPrompt('ai',c,gain);
   const pool=AI_MSGS[scenario]||AI_MSGS.greedy;
   document.getElementById('aiThinking').textContent=pool[Math.floor(Math.random()*pool.length)](c);
   log(`🤖 ${SCENARIOS[scenario].name}: ${CNAMES[c]}, +${gain} cells`);
@@ -1335,7 +1548,7 @@ function resetGame(){
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-buildWelcome();renderStepDots(-1);
+buildWelcome();buildMiniBoard();renderStepDots(-1);
 </script>
 </body>
 </html>
