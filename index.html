@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -79,6 +79,39 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 .diff-btn small{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:2px}
 .diff-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
 .diff-btn.on{border-color:var(--accent);background:var(--surf2);color:var(--accent-dk)}
+
+/* Scenario packs */
+.sp-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.sp-card{border-radius:var(--R);padding:14px;cursor:pointer;border:2px solid var(--border);background:var(--surface);transition:all .18s;position:relative;overflow:hidden}
+.sp-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 4px 14px rgba(46,116,181,.14)}
+.sp-card.on{border-color:var(--accent);background:var(--surf2);box-shadow:0 0 0 3px var(--accent-lt)}
+.sp-domain{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px}
+.sp-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;line-height:1.25}
+.sp-context{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:7px}
+.sp-stakes{font-size:10px;font-style:italic;line-height:1.4;opacity:.8}
+.sp-icon{font-size:22px;float:right;margin:0 0 4px 10px;line-height:1}
+.ctx-bar{padding:7px 16px;display:flex;align-items:center;gap:10px;font-size:11px;border-bottom:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.18);flex-wrap:wrap}
+.ctx-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ctx-label{font-weight:700;color:#9acbf0;flex-shrink:0}
+.ctx-text{color:rgba(255,255,255,.55);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ctx-stake{color:#f0b429;font-weight:600;flex-shrink:0}
+.event-modal{display:none;position:fixed;inset:0;background:rgba(8,20,45,.88);z-index:400;align-items:center;justify-content:center}
+.event-modal.on{display:flex}
+.event-box{background:var(--surface);border-radius:var(--R);max-width:420px;width:93%;border:2px solid var(--accent);box-shadow:0 8px 48px rgba(15,30,55,.5);overflow:hidden;animation:evslide .32s cubic-bezier(.34,1.4,.64,1)}
+@keyframes evslide{0%{transform:translateY(28px) scale(.96);opacity:0}100%{transform:none;opacity:1}}
+.ev-head{padding:14px 18px 10px;border-bottom:1px solid var(--border)}
+.ev-turn{font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;color:var(--accent)}
+.ev-title{font-size:17px;font-weight:800;color:var(--text);line-height:1.2}
+.ev-body{padding:14px 18px}
+.ev-desc{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:12px}
+.ev-effect{background:var(--yellow-bg);border:1px solid var(--yellow-bd);border-radius:var(--r);padding:9px 12px;font-size:12px;color:var(--yellow);font-weight:600;margin-bottom:12px;line-height:1.5}
+.ev-real{background:var(--surf2);border-radius:var(--r);padding:9px 12px;font-size:11px;color:var(--text3);line-height:1.55;margin-bottom:14px}
+.ev-real strong{color:var(--accent-dk);display:block;margin-bottom:3px;font-size:10px;letter-spacing:.5px;text-transform:uppercase}
+.ev-close{width:100%;padding:10px;background:var(--accent);border:none;border-radius:var(--r);color:#fff;font-size:13px;font-weight:700;cursor:pointer}
+.ev-close:hover{background:var(--accent-dk)}
+.consequence{border-radius:var(--r);border:1px solid;padding:11px 14px;font-size:12px;line-height:1.6;text-align:left;margin-bottom:12px}
+.cons-head{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.cons-metric{display:inline-block;font-weight:700;padding:2px 7px;border-radius:10px;font-size:11px;margin:2px 3px 2px 0}
 
 /* Teacher extras */
 .teacher-extras{background:var(--surface);border:1px solid var(--border-md);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:16px;margin-bottom:18px;display:none}
@@ -392,6 +425,15 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
     <button class="diff-btn" data-d="expert" onclick="pickDiff('expert')">🧬 Expert<small>Adaptive · learns you</small></button>
   </div>
 
+  <!-- Scenario packs -->
+  <div class="sec-head">Choose a real-world scenario</div>
+  <div class="sp-grid" id="spGrid">
+    <div class="sp-card on" data-sp="social" onclick="pickScenarioPack('social')"><div class="sp-icon">📱</div><div class="sp-domain" style="color:#2E74B5">Platform · Media</div><div class="sp-title">Social Media Feed Algorithm</div><div class="sp-context">You are the content recommendation AI for a platform with 2 billion users. Each color = a type of content. Territory = user attention captured.</div><div class="sp-stakes" style="color:#2E74B5">Optimization vs. wellbeing · filter bubbles · misinformation</div></div>
+    <div class="sp-card" data-sp="hospital" onclick="pickScenarioPack('hospital')"><div class="sp-icon">🏥</div><div class="sp-domain" style="color:#8b2020">Healthcare · Triage</div><div class="sp-title">Emergency Room Triage AI</div><div class="sp-context">You are an AI prioritizing patient care in an ER. Each color = a condition category. Territory = cases where the algorithm decided alone.</div><div class="sp-stakes" style="color:#8b2020">Speed vs. equity · life-or-death · automation of care</div></div>
+    <div class="sp-card" data-sp="hiring" onclick="pickScenarioPack('hiring')"><div class="sp-icon">💼</div><div class="sp-domain" style="color:#1a7a4a">HR · Hiring</div><div class="sp-title">Resume Screening Algorithm</div><div class="sp-context">You are an AI screening 200 engineering candidates. Each color = a candidate profile type. Territory = candidates advanced to interview.</div><div class="sp-stakes" style="color:#1a7a4a">Efficiency vs. bias · proxy discrimination · who gets seen</div></div>
+    <div class="sp-card" data-sp="climate" onclick="pickScenarioPack('climate')"><div class="sp-icon">🌍</div><div class="sp-domain" style="color:#6b3d8a">Policy · Climate</div><div class="sp-title">Climate Funding Allocator</div><div class="sp-context">You are an AI allocating climate adaptation funds across 64 regions. Each color = a risk type. Territory = regions where your recommendation was implemented.</div><div class="sp-stakes" style="color:#6b3d8a">Efficiency vs. equity · invisible vs. visible crises</div></div>
+  </div>
+
   <!-- Big 5 -->
   <div class="sec-head">The 5 Big Ideas of AI you'll encounter</div>
   <div class="big5-row" id="big5Row"></div>
@@ -427,6 +469,8 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
     </div>
   </div>
 
+
+  <div class="ctx-bar" id="ctxBar" style="display:none"><div class="ctx-dot" id="ctxDot"></div><span class="ctx-label" id="ctxLabel">Scenario</span><span class="ctx-text" id="ctxText"></span><span class="ctx-stake" id="ctxStake"></span></div>
   <div class="game-body">
     <!-- LEFT -->
     <div class="left-col">
@@ -532,6 +576,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
       <div class="rs"><div class="rv" id="resTurns">—</div><div class="rl">Turns</div></div>
       <div class="rs"><div class="rv" id="resTowers">—</div><div class="rl">Towers used</div></div>
     </div>
+    <div class="consequence" id="consequence" style="display:none"></div>
     <div class="res-insight" id="resInsight"></div>
     <div class="res-btns">
       <button class="again-btn" onclick="resetGame()">Play again</button>
@@ -539,6 +584,9 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
     </div>
   </div>
 </div>
+
+<!-- EVENT -->
+<div class="event-modal" id="eventModal"><div class="event-box"><div class="ev-head"><div class="ev-turn" id="evTurn">EVENT</div><div class="ev-title" id="evTitle"></div></div><div class="ev-body"><div class="ev-desc" id="evDesc"></div><div class="ev-effect" id="evEffect"></div><div class="ev-real"><strong>Real-world parallel</strong><span id="evReal"></span></div><button class="ev-close" onclick="closeEvent()">Understood — continue game</button></div></div></div>
 
 <!-- ══════ REFLECTION ══════ -->
 <div class="reflect-modal" id="reflectModal">
@@ -751,6 +799,49 @@ const AI_MSGS={
            c=>`Random selection: ${CNAMES[c]}.`]
 };
 
+// ── SCENARIO PACKS ────────────────────────────────────────────────────────────
+const SCENARIO_PACKS = {
+  social:{id:'social',color:'#2E74B5',label:'Social Media Feed Algorithm',context:'Each color = a content type. Territory = user attention captured.',stake:'Engagement vs. wellbeing',
+    consequence:{
+      greedy:{win:'Q3 Report: Engagement +47%. Watch time at record high. Misinformation sharing also up 3x. Advertiser revenue: $2.1B. Internal trust score: down 14 pts. Ethics board review scheduled.',lose:'Engagement underperformed. Platform response: switch to a more aggressive optimization strategy. The feedback loop continues.',metrics:['Engagement +47%','Misinformation 3x','Trust score -14']},
+      predictive:{win:'Planned sequences reduced churn 22%. Session length +22%. Algorithm transparency: Low. Users cannot explain why they see what they see. 3 regulatory inquiries opened.',lose:'Predictive model failed to hold territory. A/B test suggests switching to greedy — same engagement, less compute. Human oversight: not in the proposal.',metrics:['Churn -22%','Session +22%','Transparency: Low']},
+      adaptive:{win:'Personalization index: 94/100. Users rate content highly relevant. New topic discovery: down 61%. Filter bubble risk flagged. Three users filed complaints about radicalization pathways.',lose:'Adaptive model still learning — insufficient data. Recommendation: collect more behavioral signals before next deployment.',metrics:['Personalization 94/100','Discovery -61%','3 complaints']},
+      passive:{win:'Random feed: Moderate engagement. Users encountered more diverse viewpoints than optimized peers. Retention 12% below competitor average. Advertisers requested switch to algorithmic curation.',lose:'Random baseline lost ground. Stakeholder pressure to optimize. The fairness argument requires more data to hold.',metrics:['Retention -12%','Diversity up','Advertiser pressure']}
+    }
+  },
+  hospital:{id:'hospital',color:'#8b2020',label:'Emergency Room Triage AI',context:'Each color = a condition category. Territory = cases where the AI decided alone.',stake:'Speed vs. equity in life-or-death decisions',
+    consequence:{
+      greedy:{win:'Triage report: Algorithm handled 71% of cases. Wait time down 18%. Misclassification rate: 4.2%. Audit flag: patients with private insurance were 2.3x more likely to be fast-tracked for equivalent acuity.',lose:'Greedy model underperformed. Clinicians overrode recommendations 34% of the time — highest override rate in 6 months.',metrics:['71% automated','Wait -18%','Insurance bias flag']},
+      predictive:{win:'Deterioration modeling reduced ICU admissions 28%. Transparency concern: clinicians report difficulty understanding predictions. 2 liability cases opened.',lose:'Predictive model struggled with complex multi-system conditions. Model will be retrained on expanded data.',metrics:['ICU -28%','Override difficult','2 liability cases']},
+      adaptive:{win:'System improved 31% over 10 sessions. Bias audit: patients with non-English primary language were 2.3x more likely to be downgraded. Root cause: historical data reflected past inequities.',lose:'Adaptive model is data-hungry — insufficient cases this session. Risk: relying on 3-year-old patterns. Recommend bias audit.',metrics:['Improvement +31%','Language bias 2.3x','Audit required']},
+      passive:{win:'Randomized triage. No demographic bias detected. Equitable outcomes across all patient groups. Wait-time efficiency 19% below baseline. 12 additional staff hours required.',lose:'Random system lost to clinician judgment. Equity outcome: best recorded. Efficiency outcome: worst recorded.',metrics:['No bias detected','Equity: best','Efficiency -19%']}
+    }
+  },
+  hiring:{id:'hiring',color:'#1a7a4a',label:'Resume Screening Algorithm',context:'Each color = a candidate profile type. Territory = candidates advanced to interview.',stake:'Efficiency vs. who gets seen',
+    consequence:{
+      greedy:{win:'Screening complete: 200 resumes in 8 minutes. Hire rate: 68%. Post-hire analysis: 89% of selected candidates attended top-20 universities. Community college applicants: 2% of interviews despite 31% of pool.',lose:'Greedy model selected too few candidates in hot-skill categories. Hiring manager rejected 41% of shortlist.',metrics:['Hire rate 68%','Top-20 unis: 89%','CC applicants: 2%']},
+      predictive:{win:'Algorithm modeled 5-year performance. Hire rate: 71% (record). Fairness audit: model used zip code as proxy variable. Correlation with school district funding: r=0.84. Class-based bias flagged.',lose:'Predictive model struggled with non-linear career paths. 2 of top-5 manually reviewed candidates would have been top performers.',metrics:['Hire rate 71%','Zip code proxy r=0.84','Class bias flag']},
+      adaptive:{win:'System learned from hiring manager approvals. Approval rate: 74% (record). Model learned to reject resumes with career gaps. 67% of rejected candidates were women returning from leave. Legal review initiated.',lose:'Adaptive model inconsistent — different managers gave conflicting feedback. Recommend standardizing rubric before retraining.',metrics:['Approval 74%','Career gap penalty','67% women rejected']},
+      passive:{win:'Random shortlisting from qualified pool. Hire rate: 52% (below baseline). Demographic representation matched applicant pool for the first time in 7 years.',lose:'Random selection missed several highly qualified candidates identified through manual review. Efficiency cost of equity: measurable. Equity cost of efficiency: also measurable.',metrics:['Hire rate 52%','Pool representation matched','CEO interest']}
+    }
+  },
+  climate:{id:'climate',color:'#6b3d8a',label:'Climate Funding Allocator',context:'Each color = a climate risk type. Territory = regions where your recommendation was implemented.',stake:'Economic efficiency vs. who is protected',
+    consequence:{
+      greedy:{win:'Allocation report: 63 regions funded by projected economic loss. Efficiency: 92%. Bottom GDP quartile received 4% of funds despite 38% of climate mortality. Small island states: unfunded.',lose:'Greedy model was outcompeted by diplomatic lobbying. The gap between optimized and equitable allocation is now a policy debate.',metrics:['Efficiency 92%','Bottom quartile: 4%','Mortality gap: 38%']},
+      predictive:{win:'2-year modeling reduced projected losses 19%. Slow-onset events (sea-level rise, aquifer loss) were consistently underfunded — model weights immediate economic impact over long-term displacement.',lose:'Predictive model could not account for political instability. Planned allocations went unimplemented in 14 regions.',metrics:['Loss -19%','Slow-onset underfunded','14 regions blocked']},
+      adaptive:{win:'System updated allocations based on media coverage and political signals. Correlation between funding and media attention: r=0.79. Silent disasters received 6% of budget despite 29% of projected harm.',lose:'Adaptive model chased visible crises and missed slow-developing catastrophes. Sahel region: zero allocation despite a decade of escalating displacement data.',metrics:['Media corr r=0.79','Silent crises: 6% budget','Sahel: zero']},
+      passive:{win:'Random allocation. Efficiency: 41% below optimized baseline. Equity index: highest ever. Every qualifying region received some funding. Lives protected: +14% vs. greedy — because the most vulnerable were no longer systematically excluded.',lose:'Random system left high-impact regions underfunded. Efficiency cost of equity is measurable. Equity cost of efficiency is also measurable.',metrics:['Efficiency -41%','Equity: highest ever','Lives protected +14%']}
+    }
+  }
+};
+
+const EVENT_POOL = [
+  {id:'audit',title:'⚖️ Algorithm Audit',desc:'An external fairness organization flagged your system. While the audit runs, you must sit out one turn — the AI moves twice.',effect:'skip_p1',effectMsg:'You skip your next turn. The AI moves twice.',ctx:{social:'GDPR Article 22 requires human review of automated decisions. Compliance audits pause deployment — and often reveal that optimization metrics mask equity harms.',hospital:'The Joint Commission requires audit trails for clinical decision support tools. 34% of hospital AI audits have found clinically significant bias.',hiring:'EEOC guidance on AI hiring tools requires disparate impact analysis. Companies that skip this face liability when the bias surfaces — usually post-deployment.',climate:'Green Climate Fund audits have found that AI-scored allocation models consistently underweight slow-onset disasters.'}},
+  {id:'regulation',title:'📜 New Transparency Law',desc:'A regulation now requires the AI to generate a human-readable explanation for every decision. The AI must skip this turn while explanations are computed.',effect:'skip_ai',effectMsg:'The AI skips its next turn — computing explanations.',ctx:{social:'The EU AI Act (2024) classifies recommendation engines as high-risk systems requiring explainability. Compliance typically reduces throughput by 15–30%.',hospital:'FDA guidance on clinical AI requires explanations accessible to clinicians. Most ER triage AI cannot currently produce them — deployed under human oversight waivers.',hiring:'NYC Local Law 144 (2023) requires bias audits and disclosure for AI hiring tools. Several firms withdrew their AI tools rather than comply.',climate:'The Paris Agreement transparency framework requires AI-aided allocation decisions to be traceable. This has slowed deployment in several UN agencies.'}},
+  {id:'drift',title:'📉 Model Drift Detected',desc:"The AI's training data no longer reflects current conditions — the world has changed. Its learned patterns reset this turn.",effect:'reset_adaptive',effectMsg:'Adaptive AI learning resets — it must relearn patterns from scratch.',ctx:{social:"Social media recommendation models trained before 2020 systematically misclassify content categories that didn't exist then. Retraining can exceed $10M per update.",hospital:'Disease patterns shifted significantly during COVID-19. Triage AI trained on pre-pandemic data misclassified respiratory presentations at 3x the normal rate.',hiring:"Job market conditions shift faster than most hiring models are retrained. Models trained in low-unemployment periods undervalue candidates displaced by downturns.",climate:"Climate models trained before 2020 significantly underestimate compound event frequency. 'Drift' between model assumptions and current conditions is a recognized source of systematic allocation error."}},
+  {id:'breach',title:'🔓 Training Data Breach',desc:"The data powering the AI was exposed in a security incident. Decisions made from compromised data must be reversed — the AI loses 3 recently claimed tiles.",effect:'lose_ai_tiles',effectMsg:'3 of the AI\'s most recent tiles return to neutral.',ctx:{social:"Facebook's 2018 Cambridge Analytica incident compromised behavioral data underlying recommendation algorithms. Subsequent reviews found many decisions could not be legally justified.",hospital:'A 2022 breach of patient records used to train a sepsis model required the hospital to notify 1,400 patients and stop the model. All decisions during the breach window were reviewed.',hiring:'LinkedIn, Amazon, and HireVue have all had training data incidents requiring model withdrawal. A tainted hiring model can affect thousands of candidates before discovery.',climate:'18% of historical climate data used in AI allocation models contained systematic errors from measurement station bias — particularly in underrepresented regions.'}},
+  {id:'transparency',title:'🔍 Public Transparency Demand',desc:"A journalist published an exposé on AI decision-making in your sector. The AI's scoring logic is now visible for 3 turns — users can see exactly what it's optimizing for.",effect:'reveal_scores',effectMsg:'AI score bars stay visible for the next 3 turns.',ctx:{social:"After ProPublica's COMPAS analysis (2016), algorithmic transparency demand changed the regulatory environment for automated decisions across all sectors.",hospital:"When a hospital published its sepsis AI's feature weights, clinicians discovered it heavily weighted 'number of prior hospitalizations' — a proxy for socioeconomic status.",hiring:"Amazon's internal hiring AI was shut down after engineers discovered it penalized resumes containing the word \"women's\" — found only after a transparency audit.",climate:"When the UNHCR published its climate displacement model's feature weights, researchers found it depended heavily on GDP data — systematically underestimating displacement in poor countries."}}
+];
 // ── STATE ─────────────────────────────────────────────────────────────────────
 let board=[],owner=[],p1c=0,aic=1;
 let turn=1,turnNum=1,over=false;
@@ -761,6 +852,7 @@ let logs=[],startMode='student',teacherOpen=false;
 let reflections={r1:'',r2:'',r3:''};
 let startDiff='normal',terrHistory=[],playerColorPicks={};
 let soundEnabled=true;
+let currentPack=SCENARIO_PACKS.social,scheduledEvents=[],nextP1Skip=false,nextAISkip=false,revealScoreTurns=0;
 
 // ── SOUND ─────────────────────────────────────────────────────────────────────
 const AC=(()=>{try{return new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}})();
@@ -781,6 +873,63 @@ function sWin(){beep(659,.09,.1);setTimeout(()=>beep(784,.09,.1),110);setTimeout
 function sLose(){beep(349,.09,.08);setTimeout(()=>beep(262,.32,.1),140);}
 function toggleSound(){soundEnabled=!soundEnabled;const b=document.getElementById('soundBtn');b.textContent=soundEnabled?'🔊':'🔇';b.classList.toggle('on',soundEnabled);}
 
+// ── SCENARIO PACK LOGIC ───────────────────────────────────────────────────────
+function pickScenarioPack(id){
+  currentPack=SCENARIO_PACKS[id];
+  document.querySelectorAll('.sp-card').forEach(c=>c.classList.toggle('on',c.dataset.sp===id));
+  updateHint();
+}
+function applyContextBar(){
+  if(!currentPack){document.getElementById('ctxBar').style.display='none';return;}
+  document.getElementById('ctxBar').style.display='flex';
+  document.getElementById('ctxDot').style.background=currentPack.color;
+  document.getElementById('ctxLabel').textContent=currentPack.label;
+  document.getElementById('ctxText').textContent=currentPack.context;
+  document.getElementById('ctxStake').textContent='⚡ '+currentPack.stake;
+}
+function scheduleEvents(){
+  scheduledEvents=[];
+  const pool=[...EVENT_POOL].sort(()=>Math.random()-.5).slice(0,3);
+  const turns=[5,9,13].sort(()=>Math.random()-.5);
+  pool.forEach((ev,i)=>scheduledEvents.push({...ev,atTurn:turns[i],fired:false}));
+}
+function checkEvent(){
+  if(over)return;
+  const ev=scheduledEvents.find(e=>e.atTurn===turnNum&&!e.fired);
+  if(!ev)return;
+  ev.fired=true;showEvent(ev);
+}
+function showEvent(ev){
+  document.getElementById('evTurn').textContent='EVENT · TURN '+turnNum+' · '+currentPack.label.toUpperCase();
+  document.getElementById('evTitle').textContent=ev.title;
+  document.getElementById('evDesc').textContent=ev.desc;
+  document.getElementById('evEffect').textContent='Game effect: '+ev.effectMsg;
+  document.getElementById('evReal').textContent=(ev.ctx&&ev.ctx[currentPack.id])||ev.ctx.social;
+  document.getElementById('eventModal').classList.add('on');
+  log('📢 Event: '+ev.title);
+  window._pendingEffect=ev.effect;
+}
+function closeEvent(){
+  document.getElementById('eventModal').classList.remove('on');
+  const eff=window._pendingEffect;window._pendingEffect=null;
+  if(eff==='skip_p1')nextP1Skip=true;
+  else if(eff==='skip_ai')nextAISkip=true;
+  else if(eff==='reset_adaptive'){playerColorPicks={};log('↩ Adaptive learning reset');}
+  else if(eff==='lose_ai_tiles'){
+    const tiles=owner.map((o,i)=>o===2?i:-1).filter(x=>x>=0).sort(()=>Math.random()-.5).slice(0,3);
+    tiles.forEach(i=>{owner[i]=0;});renderBoard();log('↩ 3 AI tiles returned to neutral');
+  }
+  else if(eff==='reveal_scores')revealScoreTurns=3;
+}
+function showConsequence(playerWon){
+  if(!currentPack)return;
+  const cons=currentPack.consequence[scenario];if(!cons)return;
+  const data=playerWon?cons.win:cons.lose;
+  const c=currentPack.color;
+  const el=document.getElementById('consequence');
+  el.style.cssText='display:block;border-color:'+c+'44;background:'+c+'11';
+  el.innerHTML='<div class="cons-head" style="color:'+c+'">'+currentPack.label+' — '+(playerWon?'AI deployed ✓':'AI failed to dominate')+'</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:7px">'+data+'</div>'+(cons.metrics||[]).map(m=>'<span class="cons-metric" style="background:'+c+'22;color:'+c+';border:1px solid '+c+'44">'+m+'</span>').join('');
+}
 // ── CONFETTI ─────────────────────────────────────────────────────────────────
 function confetti(){
   const cs=['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22','#f1c40f'];
@@ -830,7 +979,7 @@ function startGame(){
     document.getElementById('studentView').style.display='none';
     document.getElementById('towerBlock').style.display='none';
   }
-  resetGame();
+  applyContextBar();scheduleEvents();resetGame();
 }
 function goHome(){document.getElementById('gameScreen').classList.remove('active');document.getElementById('welcomeScreen').classList.add('active');}
 function toggleTeacherPanel(){
@@ -927,9 +1076,10 @@ function playerPick(c){
   if(turn!==1||over||placeTower)return;
   if(c===p1c||c===aic||neutralCount(c)===0)return;
   clearPreview();
+  if(nextP1Skip){nextP1Skip=false;setStatus('Your turn skipped — audit running. AI moves twice.');turn=2;updateTurn();doAI();return;}
   p1c=c;flood(1,c);p1Moves++;
   playerColorPicks[c]=(playerColorPicks[c]||0)+1;
-  sPick();animateOwned(1);advanceCoach();recordHistory();checkWin();
+  sPick();animateOwned(1);advanceCoach();recordHistory();checkEvent();checkWin();
   if(!over){turn=2;updateTurn();doAI();}
 }
 function cellClick(i){
@@ -958,6 +1108,7 @@ function doAI(){
     if(bar)bar.style.width=maxS>0?Math.round((scores[i]||0)/maxS*100)+'%':'0';
   });
   setTimeout(()=>{
+    if(nextAISkip){nextAISkip=false;log('📜 AI turn skipped — regulatory pause');document.getElementById('aiPulse').style.display='none';document.querySelectorAll('.ai-bar').forEach(b=>b.style.width='0');turn=1;updateTurn();setStatus('AI turn skipped — regulatory pause. Your move!');return;}
     const prev=territory(2);
     const best=aiChoose(scores);
     aic=best;flood(2,best);
@@ -1066,6 +1217,7 @@ function checkWin(){
     const win=p1>ai,draw=p1===ai;
     if(win){confetti();sWin();}else if(!draw)sLose();
     document.getElementById('resTitle').textContent=win?'🎉 You Win!':draw?'🤝 Draw!':'🤖 AI Wins!';
+    showConsequence(win||draw);
     document.getElementById('resSub').textContent=win?'You claimed more territory.':draw?'Perfectly balanced.':SCENARIOS[scenario].name+' dominated.';
     document.getElementById('resP1').textContent=p1;document.getElementById('resAI').textContent=ai;
     document.getElementById('resTurns').textContent=turnNum;document.getElementById('resTowers').textContent=towersPlaced;
@@ -1160,6 +1312,10 @@ function resetGame(){
   over=false;turn=1;turnNum=1;p1Moves=0;aiMoves=0;
   towersLeft=3;towersPlaced=0;placeTower=false;coachIdx=0;
   logs=[];terrHistory=[];playerColorPicks={};
+  nextP1Skip=false;nextAISkip=false;revealScoreTurns=0;
+  scheduledEvents.forEach(e=>delete e.fired);
+  document.getElementById('eventModal').classList.remove('on');
+  document.getElementById('consequence').style.display='none';
   document.getElementById('overlay').classList.remove('on');
   document.getElementById('towerBtn').classList.remove('on');
   document.getElementById('towerLeft').textContent='3 towers remaining';
