@@ -5,259 +5,302 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Color Conquest · AI Learning Game</title>
 <style>
+/* ── PAPER-DERIVED DESIGN SYSTEM ─────────────────────────────────────────────
+   Colors from manuscript_spacing_fixed.docx (Teaching AI by Design):
+   Heading blue: #2E74B5  ·  Deep heading: #1F4D78  ·  Body: Times New Roman
+   AI player adopts the paper's primary heading blue to reinforce the connection.
+   ─────────────────────────────────────────────────────────────────────────── */
+:root{
+  --bg:       #f0f4fb;
+  --surface:  #ffffff;
+  --surf2:    #e8f0fb;
+  --surf3:    #dce8f5;
+  --accent:   #2E74B5;   /* paper heading blue  */
+  --accent-dk:#1F4D78;   /* paper h3 deep blue  */
+  --accent-lt:#d4e6f5;
+  --p1:       #d64040;   /* player red          */
+  --p1-lt:    #f7d0d0;
+  --text:     #1a2535;
+  --text2:    #3a5070;
+  --text3:    #7a90a8;
+  --border:   rgba(46,116,181,.16);
+  --border-md:rgba(46,116,181,.30);
+  --yellow:   #c9930a;
+  --yellow-bg:#fef6e4;
+  --yellow-bd:#f5d87a;
+  --green:    #1a7a4a;
+  --green-bg: #e5f5ed;
+  --r:8px;--R:14px;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:100vh;overflow-x:hidden}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
+.screen{display:none;min-height:100vh}.screen.active{display:flex;flex-direction:column}
 
-/* ── SCREENS ── */
-.screen{display:none;min-height:100vh}
-.screen.active{display:flex;flex-direction:column}
+/* ══ WELCOME ══════════════════════════════════════════════════════════════════ */
+#welcomeScreen{align-items:center}
+.welcome-wrap{max-width:800px;width:100%;margin:0 auto;padding:32px 20px}
 
-/* ══════════════════════════════════ WELCOME ══════════════════════════════════ */
-#welcomeScreen{background:#0d0d1a;align-items:center}
-.welcome-wrap{max-width:780px;width:100%;margin:0 auto;padding:32px 20px}
+/* Paper-style title strip */
+.paper-strip{background:var(--accent-dk);color:#fff;border-radius:var(--R) var(--R) 0 0;padding:10px 20px;font-size:11px;font-weight:600;letter-spacing:.04em;display:flex;align-items:center;gap:8px;margin-bottom:0}
+.paper-strip span{opacity:.6;font-weight:400}
 
-.hero{display:flex;align-items:center;gap:20px;margin-bottom:30px}
-.hero-icon{position:relative;flex-shrink:0}
-.hex-grid{display:grid;grid-template-columns:repeat(4,28px);gap:3px;transform:rotate(-15deg);animation:hpulse 3s ease-in-out infinite}
-@keyframes hpulse{0%,100%{transform:rotate(-15deg) scale(1)}50%{transform:rotate(-15deg) scale(1.06)}}
-.hex{width:26px;height:26px;border-radius:6px;opacity:.9}
-.hex.r{background:#e74c3c}.hex.b{background:#3498db}.hex.g{background:#27ae60}
-.hex.o{background:#f39c12}.hex.p{background:#8e44ad}.hex.x{background:#e67e22}
-.hero-text h1{font-size:36px;font-weight:800;letter-spacing:1px;line-height:1}
-.hero-text h1 span{color:#e74c3c}
-.hero-text p{color:#aaa;font-size:15px;margin-top:6px;line-height:1.5}
-.hero-badges{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
-.badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px}
-.badge-grade{background:#27ae6022;border:1px solid #27ae6055;color:#2ecc71}
-.badge-time{background:#3498db22;border:1px solid #3498db55;color:#5dade2}
-.badge-ai{background:#8e44ad22;border:1px solid #8e44ad55;color:#9b59b6}
+.hero{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 var(--R) var(--R);padding:22px 20px 20px;margin-bottom:20px;display:flex;align-items:center;gap:22px}
+.hero-icon{flex-shrink:0}
+.hex-grid{display:grid;grid-template-columns:repeat(4,26px);gap:3px;transform:rotate(-15deg);animation:hpulse 3s ease-in-out infinite}
+@keyframes hpulse{0%,100%{transform:rotate(-15deg) scale(1)}50%{transform:rotate(-15deg) scale(1.07)}}
+.hex{width:24px;height:24px;border-radius:5px;opacity:.92}
+.hex.r{background:#d64040}.hex.b{background:#2E74B5}.hex.g{background:#27ae60}
+.hex.o{background:#e67e22}.hex.p{background:#8e44ad}.hex.x{background:#f0b429}
+.hero-text h1{font-size:30px;font-weight:800;letter-spacing:.5px;line-height:1.1;color:var(--accent-dk)}
+.hero-text h1 span{color:var(--accent)}
+.hero-text p{color:var(--text2);font-size:14px;margin-top:6px;line-height:1.55}
+.hero-badges{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.badge{padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.3px}
+.bg{background:var(--green-bg);border:1px solid #a3d5b8;color:var(--green)}
+.bb{background:var(--surf2);border:1px solid var(--border-md);color:var(--accent)}
+.by{background:var(--yellow-bg);border:1px solid var(--yellow-bd);color:var(--yellow)}
 
-/* Mode selector */
-.mode-select{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
-.mode-card{border-radius:14px;padding:18px;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;overflow:hidden}
-.mode-card:hover{transform:translateY(-2px)}
-.mode-card.selected{border-color:#fff}
-.mode-card .mc-icon{font-size:28px;margin-bottom:8px}
-.mode-card .mc-title{font-size:15px;font-weight:700;margin-bottom:4px}
-.mode-card .mc-desc{font-size:12px;opacity:.75;line-height:1.5}
-.mode-card .mc-badge{position:absolute;top:10px;right:10px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:10px}
-.mc-student{background:#e74c3c18;border-color:#e74c3c33}
-.mc-student.selected{border-color:#e74c3c}
-.mc-teacher{background:#3498db18;border-color:#3498db33}
-.mc-teacher.selected{border-color:#3498db}
+/* Section header (paper-style ruled) */
+.sec-head{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:10px;padding-bottom:5px;border-bottom:1px solid var(--border)}
 
-/* Difficulty selector */
-.diff-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:20px}
-.diff-btn{background:#1a1a2e;border:2px solid #ffffff15;border-radius:12px;padding:10px 6px;cursor:pointer;color:#eee;font-size:12px;font-weight:700;transition:all .2s;text-align:center;line-height:1.4}
-.diff-btn small{display:block;font-size:10px;font-weight:400;opacity:.6;margin-top:2px}
-.diff-btn:hover{border-color:#ffffff35;transform:translateY(-2px)}
-.diff-btn.selected{border-color:#fff;background:#ffffff12}
-.diff-btn[data-d="easy"].selected{border-color:#27ae60;background:#27ae6015}
-.diff-btn[data-d="normal"].selected{border-color:#f39c12;background:#f39c1215}
-.diff-btn[data-d="hard"].selected{border-color:#e74c3c;background:#e74c3c15}
-.diff-btn[data-d="expert"].selected{border-color:#8e44ad;background:#8e44ad15}
+/* Role + difficulty row */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.four-col{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:18px}
 
-/* Big 5 */
-.section-label{font-size:10px;font-weight:700;letter-spacing:2px;color:#555;text-transform:uppercase;margin-bottom:10px}
-.big5-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:24px}
-.b5-card{border-radius:12px;padding:12px 8px;text-align:center;cursor:default;border:1px solid transparent;transition:all .2s}
-.b5-card:hover{transform:translateY(-2px)}
-.b5-icon{font-size:22px;margin-bottom:5px}
-.b5-num{font-size:9px;font-weight:700;letter-spacing:1px;opacity:.6;margin-bottom:2px}
-.b5-name{font-size:11px;font-weight:700;line-height:1.3}
-.b5-short{font-size:10px;opacity:.65;margin-top:3px;line-height:1.3}
+.sel-card{border-radius:var(--R);padding:16px;cursor:pointer;border:2px solid var(--border);background:var(--surface);transition:all .18s;position:relative}
+.sel-card:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 3px 12px rgba(46,116,181,.12)}
+.sel-card.on{border-color:var(--accent);background:var(--surf2);box-shadow:0 0 0 3px var(--accent-lt)}
+.sc-icon{font-size:24px;margin-bottom:6px}
+.sc-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:3px}
+.sc-desc{font-size:12px;color:var(--text2);line-height:1.5}
+.sc-badge{position:absolute;top:9px;right:9px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px;background:var(--surf3);color:var(--accent);border:1px solid var(--border-md)}
 
-/* Rules */
-.rules-card{background:#1a1a2e;border-radius:14px;padding:18px;margin-bottom:24px;border:1px solid #ffffff12}
-.rules-card h3{font-size:13px;font-weight:700;color:#f1c40f;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.rule-row{display:flex;gap:10px;margin-bottom:9px;font-size:13px;color:#ccc;line-height:1.5;align-items:flex-start}
-.rule-icon{font-size:17px;flex-shrink:0;margin-top:1px}
+.diff-btn{background:var(--surface);border:2px solid var(--border);border-radius:var(--r);padding:10px 6px;cursor:pointer;color:var(--text);font-size:12px;font-weight:700;transition:all .18s;text-align:center;line-height:1.4}
+.diff-btn small{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:2px}
+.diff-btn:hover{border-color:var(--accent);transform:translateY(-1px)}
+.diff-btn.on{border-color:var(--accent);background:var(--surf2);color:var(--accent-dk)}
 
 /* Teacher extras */
-.teacher-extras{background:#1a1a2e;border-radius:14px;padding:16px;margin-bottom:20px;border:1px solid #3498db33;display:none}
-.teacher-extras h3{font-size:13px;font-weight:700;color:#5dade2;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.teacher-extras{background:var(--surface);border:1px solid var(--border-md);border-left:3px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:16px;margin-bottom:18px;display:none}
+.teacher-extras h3{font-size:13px;font-weight:700;color:var(--accent-dk);margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .te-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.te-item{background:#0d0d1a;border-radius:10px;padding:10px}
-.te-title{font-size:11px;font-weight:700;color:#5dade2;margin-bottom:3px}
-.te-desc{font-size:11px;color:#888;line-height:1.5}
+.te-item{background:var(--surf2);border-radius:var(--r);padding:10px}
+.te-ttl{font-size:11px;font-weight:700;color:var(--accent-dk);margin-bottom:3px}
+.te-desc{font-size:11px;color:var(--text2);line-height:1.5}
+.stds{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.std{padding:3px 8px;border-radius:20px;font-size:10px;font-weight:700;background:var(--yellow-bg);border:1px solid var(--yellow-bd);color:var(--yellow)}
 
-/* Standards */
-.standards-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px}
-.std-chip{padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;background:#f1c40f15;border:1px solid #f1c40f33;color:#f1c40f}
+/* Big 5 */
+.big5-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:20px}
+.b5{border-radius:var(--r);padding:11px 8px;text-align:center;border:1px solid var(--border);background:var(--surface);transition:transform .18s;cursor:default}
+.b5:hover{transform:translateY(-2px)}
+.b5-icon{font-size:20px;margin-bottom:4px}
+.b5-num{font-size:9px;font-weight:700;letter-spacing:1px;opacity:.5;margin-bottom:2px}
+.b5-name{font-size:11px;font-weight:700;line-height:1.3}
+.b5-short{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.3}
+
+/* Rules */
+.rules-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--R);padding:16px;margin-bottom:20px}
+.rules-card h3{font-size:13px;font-weight:700;color:var(--accent-dk);margin-bottom:11px;display:flex;align-items:center;gap:6px}
+.rule-row{display:flex;gap:10px;margin-bottom:8px;font-size:13px;color:var(--text2);line-height:1.5;align-items:flex-start}
+.rule-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+
+/* DCR badge */
+.dcr-strip{background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:9px 14px;margin-bottom:20px;display:flex;align-items:center;gap:12px;font-size:12px;color:var(--text2)}
+.dcr-phases{display:flex;gap:6px}
+.dcr-phase{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.dcr-d{background:#e8f0fb;color:var(--accent-dk)}
+.dcr-c{background:var(--green-bg);color:var(--green)}
+.dcr-r{background:var(--yellow-bg);color:var(--yellow)}
 
 .start-row{display:flex;gap:10px;align-items:center}
-.start-btn{padding:14px 36px;border-radius:12px;border:none;background:#e74c3c;color:#fff;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s}
-.start-btn:hover{background:#c0392b;transform:scale(1.03)}
-.start-hint{font-size:12px;color:#555}
+.start-btn{padding:13px 34px;border-radius:var(--r);border:none;background:var(--accent);color:#fff;font-size:14px;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.02em}
+.start-btn:hover{background:var(--accent-dk);transform:scale(1.02);box-shadow:0 4px 16px rgba(46,116,181,.3)}
+.start-hint{font-size:12px;color:var(--text3)}
 
-/* ══════════════════════════════════ GAME ══════════════════════════════════ */
+/* ══ GAME ══════════════════════════════════════════════════════════════════════ */
 #gameScreen{flex-direction:column}
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:9px 16px;background:#161625;border-bottom:1px solid #ffffff12;flex-wrap:wrap;gap:6px}
-.tb-logo{font-size:15px;font-weight:800}.tb-logo span{color:#e74c3c}
-.tb-turn{font-size:12px;font-weight:600;background:#1e1e30;border-radius:8px;padding:5px 12px}
-.tb-right{display:flex;gap:6px;flex-wrap:wrap}
-.tb-btn{padding:5px 10px;border-radius:7px;border:1px solid #ffffff18;background:transparent;color:#aaa;cursor:pointer;font-size:11px;transition:all .2s}
-.tb-btn:hover{background:#ffffff12;color:#eee}
-.tb-btn.teacher-mode{border-color:#3498db44;color:#5dade2}
-.tb-btn.teacher-mode.on{background:#3498db22}
-.tb-btn.sound-on{color:#f1c40f;border-color:#f1c40f44}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:var(--accent-dk);border-bottom:1px solid var(--accent);flex-wrap:wrap;gap:6px}
+.tb-logo{font-size:15px;font-weight:800;color:#fff}.tb-logo span{color:#9acbf0}
+.tb-turn{font-size:12px;font-weight:600;background:rgba(255,255,255,.12);border-radius:6px;padding:4px 11px;color:#d0e6f7}
+.tb-right{display:flex;gap:5px;flex-wrap:wrap}
+.tb-btn{padding:5px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.2);background:transparent;color:rgba(255,255,255,.7);cursor:pointer;font-size:11px;transition:all .15s}
+.tb-btn:hover{background:rgba(255,255,255,.12);color:#fff}
+.tb-btn.on{background:rgba(255,255,255,.18);color:#fff}
 
-.game-body{display:grid;grid-template-columns:175px 1fr 250px;flex:1;min-height:0}
+.game-body{display:grid;grid-template-columns:175px 1fr 252px;flex:1;min-height:0}
 
 /* LEFT */
-.left-col{background:#161625;border-right:1px solid #ffffff10;padding:11px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
-.col-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:#444;text-transform:uppercase;margin-bottom:5px}
-.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.c-btn{height:54px;border-radius:10px;border:3px solid transparent;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 4px 0 rgba(0,0,0,.5);position:relative;overflow:hidden}
-.c-btn:hover:not(.off){transform:translateY(-3px);box-shadow:0 7px 0 rgba(0,0,0,.5)}
-.c-btn.off{opacity:.25;cursor:not-allowed}
-.c-btn .cc{font-size:11px;font-weight:800;color:rgba(255,255,255,.95)}
-.c-btn .cn{font-size:9px;color:rgba(255,255,255,.65)}
-/* AI score bar overlaid on color button */
-.c-btn .ai-score-bar{position:absolute;bottom:0;left:0;height:4px;background:rgba(255,255,255,.5);border-radius:0 0 0 7px;transition:width .4s;width:0}
+.left-col{background:var(--surface);border-right:1px solid var(--border);padding:11px;display:flex;flex-direction:column;gap:12px;overflow-y:auto}
+.col-lbl{font-size:9px;font-weight:700;letter-spacing:2px;color:var(--text3);text-transform:uppercase;margin-bottom:6px}
 
-.score-block{background:#1e1e30;border-radius:10px;padding:9px}
+.color-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.c-btn{height:54px;border-radius:9px;border:3px solid transparent;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 3px 0 rgba(0,0,0,.18);position:relative;overflow:hidden}
+.c-btn:hover:not(.off){transform:translateY(-3px);box-shadow:0 6px 0 rgba(0,0,0,.18)}
+.c-btn.off{opacity:.28;cursor:not-allowed}
+.c-btn .cc{font-size:11px;font-weight:800;color:rgba(255,255,255,.95)}
+.c-btn .cn{font-size:9px;color:rgba(255,255,255,.7)}
+.c-btn .ai-bar{position:absolute;bottom:0;left:0;height:4px;background:rgba(255,255,255,.55);transition:width .4s;width:0}
+
+.score-block{background:var(--surf2);border-radius:var(--r);padding:9px}
 .sr{display:flex;align-items:center;justify-content:space-between;margin-bottom:5px}
 .sd{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-right:5px}
-.sn{font-size:11px;flex:1}.sv{font-size:14px;font-weight:700}
-.sb{height:5px;border-radius:3px;background:#ffffff10;margin-bottom:6px;overflow:hidden}
+.sn{font-size:11px;flex:1;color:var(--text2)}.sv{font-size:14px;font-weight:700;color:var(--text)}
+.sb{height:5px;border-radius:3px;background:var(--border);margin-bottom:6px;overflow:hidden}
 .sf{height:100%;border-radius:3px;transition:width .4s}
+.cell-ct{font-size:10px;color:var(--text3);text-align:center;margin-top:3px}
 
-.tower-block{border-top:1px solid #ffffff10;padding-top:10px}
-.t-btn{width:100%;padding:7px;border-radius:8px;border:2px solid #f39c12;background:transparent;color:#f39c12;cursor:pointer;font-size:12px;font-weight:700;transition:all .2s}
-.t-btn:hover{background:#f39c1222}
-.t-btn.on{background:#f39c12;color:#000}
-.t-left{font-size:10px;color:#666;text-align:center;margin-top:3px}
+.tower-block{border-top:1px solid var(--border);padding-top:10px}
+.t-btn{width:100%;padding:7px;border-radius:var(--r);border:2px solid #d4950a;background:transparent;color:#c9930a;cursor:pointer;font-size:12px;font-weight:700;transition:all .18s}
+.t-btn:hover{background:var(--yellow-bg)}
+.t-btn.on{background:#f5d87a;color:#5a3800;border-color:#d4950a}
+.t-left{font-size:10px;color:var(--text3);text-align:center;margin-top:3px}
 
 /* BOARD */
-.board-col{display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto}
+.board-col{display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:var(--bg)}
 .board{display:grid;gap:4px}
-.cell{width:50px;height:50px;border-radius:10px;transition:transform .15s,box-shadow .15s;position:relative;display:flex;align-items:center;justify-content:center;font-size:17px;border:3px solid transparent;box-shadow:0 4px 0 rgba(0,0,0,.45);cursor:default}
-.cell.p1{background:#e74c3c;border-color:#ff6b6b}
-.cell.ai{background:#3498db;border-color:#5dade2}
-.cell.tower{background:#f39c12;border-color:#f1c40f}
+.cell{width:50px;height:50px;border-radius:9px;transition:transform .12s,box-shadow .12s;position:relative;display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid transparent;box-shadow:0 3px 0 rgba(0,0,0,.15);cursor:default}
+.cell.p1{background:var(--p1)!important;border-color:#f48080!important;box-shadow:0 3px 0 rgba(180,20,20,.25)!important}
+.cell.ai{background:var(--accent)!important;border-color:#6aaad8!important;box-shadow:0 3px 0 rgba(20,60,140,.25)!important}
+.cell.tower{background:#f0b429!important;border-color:#f7d87a!important}
 .cell.placeable{cursor:crosshair;animation:glow .8s ease-in-out infinite alternate}
-@keyframes glow{from{box-shadow:0 4px 0 rgba(0,0,0,.45)}to{box-shadow:0 4px 16px rgba(243,156,18,.7)}}
-/* Hover preview */
-.cell.preview{animation:prev-glow .55s ease-in-out infinite alternate;opacity:.85}
-@keyframes prev-glow{from{box-shadow:0 4px 0 rgba(0,0,0,.4)}to{box-shadow:0 2px 18px rgba(255,255,255,.5),inset 0 0 0 2px rgba(255,255,255,.4)}}
-.cell.pop{animation:pop .25s ease}
-@keyframes pop{0%{transform:scale(1.3)}100%{transform:scale(1)}}
-/* AI evaluation highlight */
-.cell.ai-eval{animation:eval-glow .4s ease-in-out infinite alternate}
-@keyframes eval-glow{from{box-shadow:0 4px 0 rgba(0,0,0,.4)}to{box-shadow:0 0 12px rgba(52,152,219,.7)}}
+@keyframes glow{from{box-shadow:0 3px 0 rgba(0,0,0,.15)}to{box-shadow:0 3px 16px rgba(240,180,40,.7)}}
+.cell.preview{animation:prev .55s ease-in-out infinite alternate}
+@keyframes prev{from{box-shadow:0 3px 0 rgba(0,0,0,.1)}to{box-shadow:0 2px 16px rgba(46,116,181,.55),inset 0 0 0 2px rgba(255,255,255,.5)}}
+.cell.pop{animation:pop .22s ease}
+@keyframes pop{0%{transform:scale(1.28)}100%{transform:scale(1)}}
 
 /* RIGHT */
-.right-col{background:#161625;border-left:1px solid #ffffff10;padding:11px;display:flex;flex-direction:column;gap:9px;overflow-y:auto}
+.right-col{background:var(--surface);border-left:1px solid var(--border);padding:11px;display:flex;flex-direction:column;gap:9px;overflow-y:auto}
 
 /* Territory chart */
-.terr-chart{background:#1e1e30;border-radius:10px;padding:8px 10px}
-.terr-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;color:#444;text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between}
-.terr-lbl span{font-size:9px;color:#555;font-weight:400;letter-spacing:0}
-#terrCanvas{display:block;width:100%;border-radius:4px}
+.terr-card{background:var(--surf2);border-radius:var(--r);padding:8px 10px}
+.terr-hd{font-size:9px;font-weight:700;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;margin-bottom:5px;display:flex;justify-content:space-between}
+.terr-lead{font-size:9px;font-weight:700;letter-spacing:0;text-transform:none}
+#terrCanvas{display:block;width:100%;border-radius:3px}
 
-/* Coach */
-.coach-card{background:#1e1e30;border-radius:12px;padding:11px;border-left:4px solid #f1c40f}
+/* Coach card */
+.coach-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid #c9930a;border-radius:0 var(--r) var(--r) 0;padding:11px}
 .cc-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.cc-av{width:30px;height:30px;border-radius:50%;background:#f1c40f22;color:#f1c40f;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.cc-title{font-size:12px;font-weight:700}
-.cc-step{font-size:10px;color:#666}
-.cc-msg{font-size:12px;color:#ddd;line-height:1.6}
-.cc-hint{margin-top:7px;font-size:11px;color:#f1c40f;font-style:italic}
+.cc-av{width:28px;height:28px;border-radius:50%;background:var(--yellow-bg);color:#c9930a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.cc-title{font-size:12px;font-weight:700;color:var(--text)}
+.cc-step{font-size:10px;color:var(--text3)}
+.cc-msg{font-size:12px;color:var(--text2);line-height:1.6}
+.cc-hint{margin-top:7px;font-size:11px;color:#c9930a;font-style:italic}
 .step-dots{display:flex;gap:4px;margin-top:8px}
-.sdot{width:7px;height:7px;border-radius:50%;background:#2a2a40;transition:background .3s}
-.sdot.done{background:#27ae60}.sdot.cur{background:#f1c40f}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--surf3);transition:background .25s}
+.sdot.done{background:var(--green)}.sdot.cur{background:#c9930a}
 
-/* Big idea */
-.bi-tag{border-radius:10px;padding:8px 10px;display:none}
-.bi-lbl{font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:2px;opacity:.75}
-.bi-name{font-size:12px;font-weight:700;margin-bottom:2px}
-.bi-desc{font-size:11px;line-height:1.5;opacity:.8}
+/* Big idea tag */
+.bi-tag{border-radius:var(--r);padding:8px 10px;display:none}
 
-/* Agent */
-.agent-card{background:#1e1e30;border-radius:12px;padding:11px;border-left:4px solid #3498db}
+/* Agent card */
+.agent-card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:11px}
 .ac-head{display:flex;align-items:center;gap:8px;margin-bottom:7px}
-.ac-av{width:30px;height:30px;border-radius:50%;background:#3498db22;color:#3498db;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.ac-name{font-size:12px;font-weight:700}.ac-type{font-size:10px;color:#666}
+.ac-av{width:28px;height:28px;border-radius:50%;background:var(--surf2);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.ac-name{font-size:12px;font-weight:700;color:var(--text)}.ac-type{font-size:10px;color:var(--text3)}
 .as{display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px}
-.as span:first-child{color:#666}
-.thinking{background:#0a0a18;border-radius:8px;padding:7px;font-size:11px;color:#5dade2;font-style:italic;line-height:1.5;margin-top:6px;min-height:40px}
+.as span:first-child{color:var(--text3)}
+.thinking{background:var(--surf2);border-radius:var(--r);padding:7px;font-size:11px;color:var(--accent);font-style:italic;line-height:1.5;margin-top:6px;min-height:38px}
 
 /* Teacher panel */
 .teacher-panel{display:none;flex-direction:column;gap:9px}
 .teacher-panel.on{display:flex}
-
 .scen-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
-.scen-btn{padding:7px 4px;border-radius:8px;border:1px solid #ffffff15;background:transparent;color:#eee;cursor:pointer;font-size:11px;font-weight:600;transition:all .2s;line-height:1.3;text-align:center}
-.scen-btn:hover{background:#ffffff10}
-.scen-btn.on{background:#3498db22;border-color:#3498db;color:#5dade2}
-.scen-desc{font-size:10px;color:#666;line-height:1.5;padding:6px 8px;background:#0a0a18;border-radius:8px}
-
+.scen-btn{padding:7px 4px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text2);cursor:pointer;font-size:11px;font-weight:600;transition:all .18s;line-height:1.3;text-align:center}
+.scen-btn:hover{background:var(--surf2);border-color:var(--accent)}
+.scen-btn.on{background:var(--surf2);border-color:var(--accent);color:var(--accent-dk)}
+.scen-desc{font-size:10px;color:var(--text3);line-height:1.5;padding:6px 8px;background:var(--surf2);border-radius:var(--r)}
 .sl-row{display:flex;flex-direction:column;gap:3px}
-.sl-row label{font-size:10px;color:#666;display:flex;justify-content:space-between}
-.sl-row input{accent-color:#3498db;width:100%}
-
-/* Learning objectives panel */
+.sl-row label{font-size:10px;color:var(--text3);display:flex;justify-content:space-between}
+.sl-row input{accent-color:var(--accent);width:100%}
 .obj-list{display:flex;flex-direction:column;gap:5px}
-.obj-item{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#ccc;line-height:1.5}
+.obj-item{display:flex;align-items:flex-start;gap:7px;font-size:11px;color:var(--text2);line-height:1.5}
 .obj-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.sim-log{background:var(--surf2);border-radius:var(--r);padding:7px;font-size:10px;color:var(--text3);line-height:1.8;max-height:100px;overflow-y:auto}
+.exp-btn{width:100%;padding:7px;border-radius:var(--r);border:1px solid var(--border-md);background:transparent;color:var(--accent);cursor:pointer;font-size:11px;font-weight:700;transition:all .18s}
+.exp-btn:hover{background:var(--surf2)}
+.fac-btn{width:100%;padding:7px;border-radius:var(--r);border:1px solid var(--border-md);background:var(--accent-dk);color:#fff;cursor:pointer;font-size:11px;font-weight:700;transition:all .18s;margin-top:2px}
+.fac-btn:hover{background:var(--accent)}
 
-.sim-log{background:#0a0a18;border-radius:8px;padding:7px;font-size:10px;color:#4a6a8a;line-height:1.8;max-height:110px;overflow-y:auto}
-
-/* Export btn */
-.export-btn{width:100%;padding:7px;border-radius:8px;border:1px solid #3498db44;background:transparent;color:#5dade2;cursor:pointer;font-size:11px;font-weight:700;transition:all .2s}
-.export-btn:hover{background:#3498db15}
-
-/* Status */
-.statusbar{padding:7px 14px;background:#0a0a18;border-top:1px solid #ffffff08;display:flex;align-items:center;gap:10px;font-size:12px}
-.status-msg{color:#f1c40f;font-weight:600;flex:1}
-.ai-pulse{display:none;align-items:center;gap:5px;color:#5dade2;font-size:11px}
-.pdot{width:5px;height:5px;border-radius:50%;background:#3498db;animation:blink 1s infinite}
+/* Status bar */
+.statusbar{padding:7px 14px;background:var(--accent-dk);border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;font-size:12px}
+.status-msg{color:#9acbf0;font-weight:600;flex:1}
+.ai-pulse{display:none;align-items:center;gap:5px;color:#6aaad8;font-size:11px}
+.pdot{width:5px;height:5px;border-radius:50%;background:#9acbf0;animation:blink 1s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
 
-/* Overlay */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:center;justify-content:center}
+/* ── OVERLAYS ──────────────────────────────────────────────────────────────── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(15,30,55,.85);z-index:200;align-items:center;justify-content:center}
 .overlay.on{display:flex}
-.result-box{background:#1a1a2e;border-radius:18px;padding:26px;text-align:center;border:2px solid #e74c3c;max-width:380px;width:92%}
-.res-title{font-size:28px;font-weight:800;margin-bottom:5px;animation:resbounce .5s cubic-bezier(.34,1.56,.64,1)}
-@keyframes resbounce{0%{transform:scale(.6);opacity:0}100%{transform:scale(1);opacity:1}}
-.res-sub{color:#aaa;font-size:13px;margin-bottom:16px}
+
+/* Result */
+.result-box{background:var(--surface);border-radius:var(--R);padding:26px;text-align:center;border:2px solid var(--accent);max-width:390px;width:92%;box-shadow:0 8px 40px rgba(15,30,55,.35)}
+.res-title{font-size:26px;font-weight:800;margin-bottom:5px;color:var(--text);animation:resbounce .45s cubic-bezier(.34,1.56,.64,1)}
+@keyframes resbounce{0%{transform:scale(.65);opacity:0}100%{transform:scale(1);opacity:1}}
+.res-sub{color:var(--text2);font-size:13px;margin-bottom:16px}
 .res-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
-.rs{background:#111120;border-radius:10px;padding:9px}
-.rv{font-size:18px;font-weight:700}.rl{font-size:10px;color:#666;margin-top:2px}
-.res-insight{background:#f1c40f12;border:1px solid #f1c40f30;border-radius:10px;padding:10px;font-size:12px;color:#f1c40f;text-align:left;margin-bottom:14px;line-height:1.6}
+.rs{background:var(--surf2);border-radius:var(--r);padding:9px}
+.rv{font-size:18px;font-weight:700;color:var(--text)}.rl{font-size:10px;color:var(--text3);margin-top:2px}
+.res-insight{background:var(--yellow-bg);border:1px solid var(--yellow-bd);border-radius:var(--r);padding:10px;font-size:12px;color:var(--yellow);text-align:left;margin-bottom:14px;line-height:1.6}
 .res-btns{display:flex;gap:8px;justify-content:center}
-.again-btn{padding:10px 24px;background:#e74c3c;border:none;border-radius:10px;color:#fff;font-size:13px;font-weight:700;cursor:pointer}
-.again-btn:hover{background:#c0392b}
-.reflect-btn{padding:10px 20px;background:transparent;border:1px solid #f1c40f44;border-radius:10px;color:#f1c40f;font-size:13px;font-weight:700;cursor:pointer}
-.reflect-btn:hover{background:#f1c40f15}
+.again-btn{padding:10px 22px;background:var(--accent);border:none;border-radius:var(--r);color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:all .18s}
+.again-btn:hover{background:var(--accent-dk)}
+.reflect-btn{padding:10px 18px;background:transparent;border:1px solid var(--yellow-bd);border-radius:var(--r);color:var(--yellow);font-size:13px;font-weight:700;cursor:pointer;transition:all .18s}
+.reflect-btn:hover{background:var(--yellow-bg)}
 
 /* Reflection modal */
-.reflect-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:300;align-items:center;justify-content:center}
-.reflect-modal.on{display:flex}
-.reflect-box{background:#1a1a2e;border-radius:18px;padding:26px;max-width:420px;width:92%;border:1px solid #f1c40f33}
-.reflect-box h3{font-size:16px;font-weight:700;color:#f1c40f;margin-bottom:14px}
-.reflect-q{font-size:12px;color:#aaa;margin-bottom:5px;font-weight:600}
-.reflect-box textarea{width:100%;background:#0d0d1a;border:1px solid #ffffff18;border-radius:8px;padding:8px;color:#eee;font-size:12px;resize:vertical;font-family:inherit;margin-bottom:10px;min-height:52px}
-.reflect-close{padding:8px 20px;background:#f1c40f;border:none;border-radius:8px;color:#000;font-size:12px;font-weight:700;cursor:pointer;width:100%}
+.reflect-modal,.fac-modal{display:none;position:fixed;inset:0;background:rgba(15,30,55,.85);z-index:300;align-items:center;justify-content:center}
+.reflect-modal.on,.fac-modal.on{display:flex}
+.reflect-box{background:var(--surface);border-radius:var(--R);padding:26px;max-width:440px;width:92%;border:1px solid var(--yellow-bd);box-shadow:0 8px 40px rgba(15,30,55,.3)}
+.reflect-box h3{font-size:16px;font-weight:700;color:var(--yellow);margin-bottom:14px}
+.reflect-q{font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:600}
+.reflect-box textarea{width:100%;background:var(--surf2);border:1px solid var(--border);border-radius:var(--r);padding:8px;color:var(--text);font-size:12px;resize:vertical;font-family:inherit;margin-bottom:10px;min-height:52px}
+.reflect-close{padding:8px 20px;background:#c9930a;border:none;border-radius:var(--r);color:#fff;font-size:12px;font-weight:700;cursor:pointer;width:100%}
+
+/* Facilitation Guide modal */
+.fac-box{background:var(--surface);border-radius:var(--R);padding:0;max-width:640px;width:95%;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--border-md);box-shadow:0 8px 40px rgba(15,30,55,.35)}
+.fac-head{background:var(--accent-dk);color:#fff;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
+.fac-head h3{font-size:15px;font-weight:700}
+.fac-head p{font-size:11px;opacity:.65;margin-top:2px}
+.fac-close{background:rgba(255,255,255,.15);border:none;border-radius:6px;color:#fff;cursor:pointer;padding:5px 10px;font-size:12px;font-weight:600}
+.fac-close:hover{background:rgba(255,255,255,.25)}
+.fac-body{overflow-y:auto;padding:16px 20px;flex:1}
+.fac-tabs{display:flex;gap:5px;margin-bottom:16px;flex-wrap:wrap}
+.fac-tab{padding:6px 14px;border-radius:20px;border:1px solid var(--border-md);background:transparent;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all .18s}
+.fac-tab:hover{background:var(--surf2)}
+.fac-tab.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.fac-section{display:none}.fac-section.on{display:block}
+.fac-scenario{border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:0 var(--r) var(--r) 0;padding:12px;margin-bottom:12px}
+.fac-scen-head{font-size:13px;font-weight:700;color:var(--accent-dk);margin-bottom:3px}
+.fac-scen-bi{font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--text3);margin-bottom:9px}
+.fac-q{font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;margin-top:9px}
+.fac-q:first-of-type{margin-top:0}
+.fac-a{font-size:12px;color:var(--text2);line-height:1.55;padding:6px 9px;background:var(--surf2);border-radius:var(--r);margin-bottom:4px}
+.fac-timing{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:12px;align-items:baseline}
+.fac-t-time{font-weight:700;color:var(--accent);white-space:nowrap}
+.fac-t-act{color:var(--text2);line-height:1.45;padding-bottom:4px;border-bottom:1px solid var(--border)}
+.dcr-block{background:var(--surf2);border-radius:var(--r);padding:12px;margin-bottom:12px}
+.dcr-block h4{font-size:12px;font-weight:700;color:var(--accent-dk);margin-bottom:6px}
+.dcr-block p{font-size:12px;color:var(--text2);line-height:1.55}
 
 /* Confetti */
-.confetti-piece{position:fixed;top:-12px;width:9px;height:9px;border-radius:2px;pointer-events:none;z-index:1000;animation:cffall linear forwards}
-@keyframes cffall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(720deg);opacity:0}}
+.cf{position:fixed;top:-12px;width:9px;height:9px;border-radius:2px;pointer-events:none;z-index:1000;animation:cffall linear forwards}
+@keyframes cffall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(108vh) rotate(760deg);opacity:0}}
 
-/* ── MOBILE ── */
+/* ── MOBILE ──────────────────────────────────────────────────────────────── */
 @media(max-width:680px){
   .game-body{grid-template-columns:1fr;grid-template-rows:auto auto}
-  .left-col{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid #ffffff10;padding:8px;gap:8px}
+  .left-col{flex-direction:row;flex-wrap:wrap;border-right:none;border-bottom:1px solid var(--border);padding:8px;gap:8px}
   .color-grid{grid-template-columns:repeat(6,1fr);flex:1;min-width:200px}
-  .c-btn{height:44px}
+  .c-btn{height:42px}
   .score-block{flex:1;min-width:150px}
-  .tower-block{border-top:none;border-left:1px solid #ffffff10;padding-top:0;padding-left:10px}
+  .tower-block{border-top:none;border-left:1px solid var(--border);padding-top:0;padding-left:10px}
   .right-col{display:none}
-  .cell{width:40px;height:40px;border-radius:8px;font-size:14px}
+  .cell{width:40px;height:40px;border-radius:7px;font-size:13px}
   .board-col{padding:8px 4px}
-  .big5-row{grid-template-columns:1fr 1fr;gap:6px}
-  .diff-row{grid-template-columns:1fr 1fr}
+  .big5-row{grid-template-columns:1fr 1fr}
+  .four-col{grid-template-columns:1fr 1fr}
 }
 @media(max-width:420px){
   .cell{width:34px;height:34px;border-radius:6px;font-size:12px}
@@ -267,10 +310,14 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
 </head>
 <body>
 
-<!-- ══════ WELCOME ══════ -->
+<!-- ══════ WELCOME ══════════════════════════════════════════════════════════ -->
 <div class="screen active" id="welcomeScreen">
 <div class="welcome-wrap">
 
+  <div class="paper-strip">
+    📄 Teaching AI by Design · Design–Create–Reflect (DCR) Framework
+    <span>· AI4K12 Five Big Ideas · Game-Based Learning</span>
+  </div>
   <div class="hero">
     <div class="hero-icon">
       <div class="hex-grid">
@@ -282,92 +329,99 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
     </div>
     <div class="hero-text">
       <h1>Color <span>Conquest</span></h1>
-      <p>A strategy game that teaches how AI actually thinks — one move at a time.</p>
+      <p>A territory strategy game that makes AI behavioral profiles tangible — students play against four distinct AI archetypes and reflect on how each one thinks.</p>
       <div class="hero-badges">
-        <span class="badge badge-grade">Grades 6–12</span>
-        <span class="badge badge-time">~15 min per game</span>
-        <span class="badge badge-ai">AI Literacy · 5 Big Ideas</span>
+        <span class="badge bg">Grades 6–12</span>
+        <span class="badge bb">~20 min · AI Literacy · 5 Big Ideas</span>
+        <span class="badge by">DCR: Design · Create · Reflect</span>
       </div>
     </div>
   </div>
 
-  <!-- Mode select -->
-  <div class="section-label">Choose your role</div>
-  <div class="mode-select">
-    <div class="mode-card mc-student selected" id="cardStudent" onclick="pickMode('student')">
-      <div class="mc-icon">🎮</div>
-      <div class="mc-title">I'm a Student</div>
-      <div class="mc-desc">Play the game, get coached through 5 Big Ideas of AI, and reflect on what you learned.</div>
-      <div class="mc-badge" style="background:#e74c3c22;color:#e74c3c;border:1px solid #e74c3c44">Player</div>
-    </div>
-    <div class="mode-card mc-teacher" id="cardTeacher" onclick="pickMode('teacher')">
-      <div class="mc-icon">🔬</div>
-      <div class="mc-title">I'm a Teacher</div>
-      <div class="mc-desc">Configure AI archetypes, adjust parameters, run scenarios, and export session data.</div>
-      <div class="mc-badge" style="background:#3498db22;color:#3498db;border:1px solid #3498db44">Educator</div>
+  <!-- DCR strip -->
+  <div class="dcr-strip">
+    <strong style="color:var(--accent-dk);font-size:12px;flex-shrink:0">DCR Process</strong>
+    <div class="dcr-phases">
+      <span class="dcr-phase dcr-d">① Design — choose role &amp; AI archetype</span>
+      <span class="dcr-phase dcr-c">② Create — play the game</span>
+      <span class="dcr-phase dcr-r">③ Reflect — journal + discussion</span>
     </div>
   </div>
 
-  <!-- Difficulty selector -->
-  <div class="section-label">Choose AI difficulty</div>
-  <div class="diff-row" id="diffRow">
-    <button class="diff-btn" data-d="easy" onclick="pickDiff('easy')">😊 Easy<small>Passive — random moves</small></button>
-    <button class="diff-btn selected" data-d="normal" onclick="pickDiff('normal')">🎮 Normal<small>Greedy — best gain now</small></button>
-    <button class="diff-btn" data-d="hard" onclick="pickDiff('hard')">🔭 Hard<small>Predictive — plans ahead</small></button>
-    <button class="diff-btn" data-d="expert" onclick="pickDiff('expert')">🧬 Expert<small>Adaptive — learns you</small></button>
+  <!-- Role -->
+  <div class="sec-head">Choose your role</div>
+  <div class="two-col">
+    <div class="sel-card on" id="cardStudent" onclick="pickMode('student')">
+      <div class="sc-icon">🎮</div>
+      <div class="sc-title">I'm a Student</div>
+      <div class="sc-desc">Play the game, get coached through the 5 Big Ideas of AI, and complete a structured reflection.</div>
+      <div class="sc-badge">Player</div>
+    </div>
+    <div class="sel-card" id="cardTeacher" onclick="pickMode('teacher')">
+      <div class="sc-icon">🔬</div>
+      <div class="sc-title">I'm a Teacher</div>
+      <div class="sc-desc">Configure AI archetypes, monitor sessions, access the facilitation guide, and export student data.</div>
+      <div class="sc-badge">Educator</div>
+    </div>
   </div>
 
   <!-- Teacher extras -->
   <div class="teacher-extras" id="teacherExtras">
-    <h3>🔬 Educator tools included</h3>
+    <h3>🔬 Educator tools in this game</h3>
     <div class="te-grid">
-      <div class="te-item"><div class="te-title">4 AI Archetypes</div><div class="te-desc">Greedy, Predictive, Adaptive, Passive — switch mid-game to compare behaviors.</div></div>
-      <div class="te-item"><div class="te-title">Live parameter tuning</div><div class="te-desc">Adjust exploration, aggression, risk, and learning rate in real time.</div></div>
-      <div class="te-item"><div class="te-title">Simulation log</div><div class="te-desc">Every AI decision logged with rationale for post-session debrief.</div></div>
-      <div class="te-item"><div class="te-title">Student reflection export</div><div class="te-desc">Download reflection responses and session stats as a text report.</div></div>
+      <div class="te-item"><div class="te-ttl">4 AI Archetypes</div><div class="te-desc">Greedy, Predictive, Adaptive, Passive — each maps to a real CS/ML concept. Switch mid-game to compare behaviors live.</div></div>
+      <div class="te-item"><div class="te-ttl">Live parameter tuning</div><div class="te-desc">Adjust exploration, aggression, risk, and learning rate in real time while students observe the effect.</div></div>
+      <div class="te-item"><div class="te-ttl">Facilitation Guide</div><div class="te-desc">Discussion questions, scenario-specific probes, DCR facilitation notes, and a class-period timing guide — built in.</div></div>
+      <div class="te-item"><div class="te-ttl">Export session report</div><div class="te-desc">Download AI archetype, game stats, full simulation log, and student reflection responses as a .txt file.</div></div>
     </div>
-    <div style="margin-top:12px">
-      <div class="section-label" style="margin-bottom:6px">Aligned standards</div>
-      <div class="standards-row">
-        <span class="std-chip">AI4K12 Big Ideas 1–5</span>
-        <span class="std-chip">CSTA K–12 Standards</span>
-        <span class="std-chip">D1 Problem Framing</span>
-        <span class="std-chip">C1 Prototyping</span>
-        <span class="std-chip">R1 Ethical Awareness</span>
-      </div>
+    <div class="stds">
+      <span class="std">AI4K12 Big Ideas 1–5</span>
+      <span class="std">CSTA K–12 Standards</span>
+      <span class="std">D1 Problem Framing</span>
+      <span class="std">C1 Prototyping</span>
+      <span class="std">R1 Ethical Awareness</span>
     </div>
   </div>
 
+  <!-- Difficulty -->
+  <div class="sec-head">AI archetype difficulty — the Design phase of DCR</div>
+  <div class="four-col" id="diffRow">
+    <button class="diff-btn" data-d="easy" onclick="pickDiff('easy')">😊 Easy<small>Passive · random</small></button>
+    <button class="diff-btn on" data-d="normal" onclick="pickDiff('normal')">🐢 Normal<small>Greedy · immediate gain</small></button>
+    <button class="diff-btn" data-d="hard" onclick="pickDiff('hard')">🔭 Hard<small>Predictive · lookahead</small></button>
+    <button class="diff-btn" data-d="expert" onclick="pickDiff('expert')">🧬 Expert<small>Adaptive · learns you</small></button>
+  </div>
+
   <!-- Big 5 -->
-  <div class="section-label">The 5 Big Ideas of AI you'll explore</div>
+  <div class="sec-head">The 5 Big Ideas of AI you'll encounter</div>
   <div class="big5-row" id="big5Row"></div>
 
   <!-- Rules -->
   <div class="rules-card">
     <h3>📋 How to play</h3>
-    <div class="rule-row"><span class="rule-icon">🗺️</span><span>The board is an 8×8 grid of colored tiles. You start <strong>bottom-left 👤</strong>, the AI starts <strong>top-right 🤖</strong>.</span></div>
-    <div class="rule-row"><span class="rule-icon">🎨</span><span><strong>Hover a color</strong> to preview which tiles you'd claim. <strong>Click to pick.</strong> Every touching tile of that color gets absorbed into your territory.</span></div>
-    <div class="rule-row"><span class="rule-icon">🏰</span><span><strong>Place up to 3 towers</strong> on neutral tiles to block the AI's path. Great for experimenting with constraints.</span></div>
-    <div class="rule-row"><span class="rule-icon">🏆</span><span><strong>Claim more than half the board</strong> to win — or have the most cells when no more moves are possible.</span></div>
-    <div class="rule-row"><span class="rule-icon">🧠</span><span>Your <strong>AI Coach</strong> explains which Big Idea is in action after each move — in plain language.</span></div>
+    <div class="rule-row"><span class="rule-icon">🗺️</span><span>8×8 board of colored tiles. You start <strong>bottom-left 👤</strong>, the AI starts <strong>top-right 🤖</strong>.</span></div>
+    <div class="rule-row"><span class="rule-icon">🎨</span><span><strong>Hover a color</strong> to preview which tiles you'd claim. <strong>Click to pick.</strong> All touching tiles of that color join your territory.</span></div>
+    <div class="rule-row"><span class="rule-icon">🏰</span><span><strong>Place up to 3 towers</strong> on neutral tiles to block the AI. Mirrors the idea of constraints in real AI systems.</span></div>
+    <div class="rule-row"><span class="rule-icon">🏆</span><span>Claim <strong>more than half the board</strong> to win — or hold the most tiles when the board is full.</span></div>
+    <div class="rule-row"><span class="rule-icon">🧭</span><span>The <strong>AI Coach</strong> explains which Big Idea is in play after each move, in plain language.</span></div>
   </div>
 
   <div class="start-row">
     <button class="start-btn" onclick="startGame()">Start Playing →</button>
-    <span class="start-hint" id="startHint">Student · Normal difficulty</span>
+    <span class="start-hint" id="startHint">Student · Normal (Greedy AI)</span>
   </div>
 
 </div>
 </div>
 
-<!-- ══════ GAME ══════ -->
+<!-- ══════ GAME ══════════════════════════════════════════════════════════════ -->
 <div class="screen" id="gameScreen">
   <div class="topbar">
     <div class="tb-logo">Color <span>Conquest</span></div>
     <div class="tb-turn" id="turnInfo">Turn 1 · Your move</div>
     <div class="tb-right">
-      <button class="tb-btn sound-on" id="soundBtn" onclick="toggleSound()" title="Toggle sound">🔊</button>
-      <button class="tb-btn teacher-mode" id="teacherToggleBtn" onclick="toggleTeacherPanel()">🔬 Teacher</button>
+      <button class="tb-btn" id="soundBtn" onclick="toggleSound()">🔊</button>
+      <button class="tb-btn" id="teacherToggleBtn" onclick="toggleTeacherPanel()">🔬 Teacher</button>
       <button class="tb-btn" onclick="goHome()">← Rules</button>
       <button class="tb-btn" onclick="resetGame()">↺ New</button>
     </div>
@@ -381,11 +435,11 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
         <div class="color-grid" id="colorGrid"></div>
       </div>
       <div class="score-block">
-        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:#e74c3c"></div><span class="sn">You</span></div><span class="sv" id="p1Score">1</span></div>
-        <div class="sb"><div class="sf" id="p1Bar" style="background:#e74c3c;width:1%"></div></div>
-        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:#3498db"></div><span class="sn" id="aiScoreName">AI</span></div><span class="sv" id="aiScore">1</span></div>
-        <div class="sb"><div class="sf" id="aiBar" style="background:#3498db;width:1%"></div></div>
-        <div style="font-size:10px;color:#444;text-align:center;margin-top:4px" id="cellCount">2 / 64 claimed</div>
+        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--p1)"></div><span class="sn">You</span></div><span class="sv" id="p1Score">1</span></div>
+        <div class="sb"><div class="sf" id="p1Bar" style="background:var(--p1);width:1%"></div></div>
+        <div class="sr"><div style="display:flex;align-items:center"><div class="sd" style="background:var(--accent)"></div><span class="sn" id="aiScoreName">AI</span></div><span class="sv" id="aiScore">1</span></div>
+        <div class="sb"><div class="sf" id="aiBar" style="background:var(--accent);width:1%"></div></div>
+        <div class="cell-ct" id="cellCount">2 / 64 claimed</div>
       </div>
       <div class="tower-block" id="towerBlock">
         <div class="col-lbl">Tower defense</div>
@@ -403,12 +457,12 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
     <div class="right-col">
 
       <!-- Territory chart -->
-      <div class="terr-chart">
-        <div class="terr-lbl">Territory over time <span id="terrLead"></span></div>
+      <div class="terr-card">
+        <div class="terr-hd">Territory over time <span class="terr-lead" id="terrLead"></span></div>
         <canvas id="terrCanvas" height="48"></canvas>
       </div>
 
-      <!-- Coach (student view) -->
+      <!-- Student view -->
       <div id="studentView">
         <div class="coach-card">
           <div class="cc-head">
@@ -434,7 +488,7 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
 
       <!-- Teacher panel -->
       <div class="teacher-panel" id="teacherPanel">
-        <div class="col-lbl">Learner archetype</div>
+        <div class="col-lbl">AI archetype</div>
         <div class="scen-grid">
           <button class="scen-btn on" onclick="setScenario('greedy')">🐢 Greedy</button>
           <button class="scen-btn" onclick="setScenario('predictive')">🔭 Predictive</button>
@@ -449,12 +503,13 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
         <div class="sl-row"><label>Risk tolerance <span id="vR">0.3</span></label><input type="range" min="0" max="1" step="0.1" value="0.3" oninput="setP('risk',this.value,'vR')"></div>
         <div class="sl-row"><label>Learning rate <span id="vL">0.2</span></label><input type="range" min="0" max="1" step="0.1" value="0.2" oninput="setP('learn',this.value,'vL')"></div>
 
-        <div class="col-lbl" style="margin-top:2px">Learning objectives</div>
+        <div class="col-lbl" style="margin-top:2px">Learning objectives (AI4K12)</div>
         <div class="obj-list" id="objList"></div>
 
         <div class="col-lbl" style="margin-top:2px">Simulation log</div>
         <div class="sim-log" id="simLog">Log will appear here…</div>
-        <button class="export-btn" onclick="exportSession()">⬇ Export session report</button>
+        <button class="exp-btn" onclick="exportSession()">⬇ Export session report</button>
+        <button class="fac-btn" onclick="openFacGuide()">📋 Facilitation Guide</button>
       </div>
 
     </div>
@@ -466,11 +521,11 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
   </div>
 </div>
 
-<!-- RESULT -->
+<!-- ══════ RESULT ══════ -->
 <div class="overlay" id="overlay">
   <div class="result-box">
     <div class="res-title" id="resTitle">🎉 You Win!</div>
-    <div class="res-sub" id="resSub">You out-strategized the AI.</div>
+    <div class="res-sub" id="resSub">You claimed more territory.</div>
     <div class="res-grid">
       <div class="rs"><div class="rv" id="resP1">—</div><div class="rl">Your cells</div></div>
       <div class="rs"><div class="rv" id="resAI">—</div><div class="rl">AI cells</div></div>
@@ -480,643 +535,631 @@ body{font-family:'Segoe UI',sans-serif;background:#0d0d1a;color:#eee;min-height:
     <div class="res-insight" id="resInsight"></div>
     <div class="res-btns">
       <button class="again-btn" onclick="resetGame()">Play again</button>
-      <button class="reflect-btn" onclick="openReflect()">✏️ Reflect</button>
+      <button class="reflect-btn" onclick="openReflect()">✏️ Reflect (DCR Phase 3)</button>
     </div>
   </div>
 </div>
 
-<!-- REFLECTION -->
+<!-- ══════ REFLECTION ══════ -->
 <div class="reflect-modal" id="reflectModal">
   <div class="reflect-box">
-    <h3>✏️ Reflection Journal</h3>
-    <div class="reflect-q">1. What strategy did the AI use? Did it surprise you?</div>
-    <textarea id="r1" placeholder="Write your thoughts…"></textarea>
-    <div class="reflect-q">2. Which Big Idea of AI did you see most clearly in this game?</div>
-    <textarea id="r2" placeholder="e.g. Representation & Reasoning, because…"></textarea>
-    <div class="reflect-q">3. If you could redesign the AI's rules, what would you change?</div>
-    <textarea id="r3" placeholder="Think about fairness, speed, or learning…"></textarea>
+    <h3>✏️ Reflection Journal — DCR Phase 3</h3>
+    <div class="reflect-q">1. What strategy did the AI use? Did anything surprise you?</div>
+    <textarea id="r1" placeholder="Describe what you noticed about the AI's behavior…"></textarea>
+    <div class="reflect-q">2. Which Big Idea of AI did you see most clearly in this game? Why?</div>
+    <textarea id="r2" placeholder="e.g. 'Representation & Reasoning, because the AI scored every color…'"></textarea>
+    <div class="reflect-q">3. If you could redesign the AI's rules, what would you change — and what would you be trying to optimize for?</div>
+    <textarea id="r3" placeholder="Think about fairness, efficiency, or what the AI should value…"></textarea>
     <button class="reflect-close" onclick="closeReflect()">Save & Close</button>
   </div>
 </div>
 
+<!-- ══════ FACILITATION GUIDE ══════ -->
+<div class="fac-modal" id="facModal">
+  <div class="fac-box">
+    <div class="fac-head">
+      <div>
+        <h3>📋 Facilitation Guide · Color Conquest</h3>
+        <p>Teaching AI by Design · Design–Create–Reflect (DCR) Framework · AI4K12 Five Big Ideas</p>
+      </div>
+      <button class="fac-close" onclick="closeFacGuide()">✕ Close</button>
+    </div>
+    <div class="fac-body">
+
+      <div class="fac-tabs">
+        <button class="fac-tab on" onclick="facTab('timing',this)">⏱ Timing</button>
+        <button class="fac-tab" onclick="facTab('greedy',this)">🐢 Greedy</button>
+        <button class="fac-tab" onclick="facTab('predictive',this)">🔭 Predictive</button>
+        <button class="fac-tab" onclick="facTab('adaptive',this)">🧬 Adaptive</button>
+        <button class="fac-tab" onclick="facTab('passive',this)">💤 Passive</button>
+        <button class="fac-tab" onclick="facTab('dcr',this)">🔄 DCR Debrief</button>
+      </div>
+
+      <!-- TIMING -->
+      <div class="fac-section on" id="fac-timing">
+        <div class="dcr-block">
+          <h4>Suggested timing for a 40-minute class period</h4>
+          <p>Adjust freely — the Reflect phase is the most important and should not be rushed.</p>
+        </div>
+        <div class="fac-timing">
+          <div class="fac-t-time">0–2 min</div><div class="fac-t-act">Welcome + DCR framing. Tell students: "Today we're going to design a learning experiment, play a game, and then reflect on what we learned about AI." Briefly name the three phases.</div>
+          <div class="fac-t-time">2–5 min</div><div class="fac-t-act">Role selection and difficulty (Design phase). Students pick their archetype. Ask: "What are you curious about? Pick the difficulty that matches that question."</div>
+          <div class="fac-t-time">5–8 min</div><div class="fac-t-act">Rules orientation — read aloud or demonstrate on a projector. Point out the AI Coach panel and ask students to pay attention to the Big Idea annotations as they play.</div>
+          <div class="fac-t-time">8–23 min</div><div class="fac-t-act">Gameplay (Create phase). Circulate. Prompt: "What is the AI doing? Does that surprise you?" For teacher mode: switch archetypes mid-game to trigger comparison.</div>
+          <div class="fac-t-time">23–28 min</div><div class="fac-t-act">Reflection journal — silent, individual (Reflect phase). Students complete all 3 prompts. This is time-protected: do not use it for discussion.</div>
+          <div class="fac-t-time">28–33 min</div><div class="fac-t-act">Small group share (2–3 students). Each person shares one thing they noticed about the AI's strategy. Groups identify the biggest point of disagreement.</div>
+          <div class="fac-t-time">33–40 min</div><div class="fac-t-act">Whole-class debrief using scenario discussion questions (see tabs). Close with the DCR Debrief questions to connect game behavior to real AI systems.</div>
+        </div>
+      </div>
+
+      <!-- GREEDY -->
+      <div class="fac-section" id="fac-greedy">
+        <div class="fac-scenario">
+          <div class="fac-scen-head">🐢 Greedy Agent</div>
+          <div class="fac-scen-bi">Big Idea 2: Representation &amp; Reasoning · CS concept: Greedy algorithm / reward maximization</div>
+          <div class="fac-q">Opening question</div>
+          <div class="fac-a">"What rule do you think the Greedy AI is following? Try to say it in one sentence." → Guide toward: "It always picks the color that gives it the most tiles right now."</div>
+          <div class="fac-q">Probe: Is greedy always optimal?</div>
+          <div class="fac-a">"Can you think of a moment in the game when the greedy choice actually hurt the AI? What did it miss?" → Students may notice: the AI sometimes gains 4 tiles but gives the player access to a large cluster next turn.</div>
+          <div class="fac-q">Bridge to real AI</div>
+          <div class="fac-a">"Social media recommendation feeds often work like greedy agents — they show you whatever gets the most immediate clicks. What are the long-term consequences of that design choice?"</div>
+          <div class="fac-q">Closing design question</div>
+          <div class="fac-a">"If you were going to fix the Greedy Agent, what information would you give it? What would it need to 'know' to make a better decision?"</div>
+        </div>
+      </div>
+
+      <!-- PREDICTIVE -->
+      <div class="fac-section" id="fac-predictive">
+        <div class="fac-scenario">
+          <div class="fac-scen-head">🔭 Predictive Agent</div>
+          <div class="fac-scen-bi">Big Ideas 1 &amp; 2: Perception + Reasoning · CS concept: Minimax / lookahead search</div>
+          <div class="fac-q">Opening question</div>
+          <div class="fac-a">"Did you notice the AI making a move that seemed weak but then made sense a turn later? What was it planning?" → Validate student observations even if they don't use the technical term "lookahead."</div>
+          <div class="fac-q">Probe: What does lookahead require?</div>
+          <div class="fac-a">"For the Predictive Agent to plan 2 turns ahead, what does it need to know? What does it still not know about what YOU will do?" → Connect to uncertainty, state space, computational cost of planning further ahead.</div>
+          <div class="fac-q">Bridge to real AI</div>
+          <div class="fac-a">"Navigation apps plan your route ahead of time but still don't know about accidents that just happened. How is that like the Predictive Agent? What are the limits of planning?"</div>
+          <div class="fac-q">Closing design question</div>
+          <div class="fac-a">"How many turns ahead should an AI plan? Is planning further ahead always better? Are there situations where an agent that plans too much is actually worse?"</div>
+        </div>
+      </div>
+
+      <!-- ADAPTIVE -->
+      <div class="fac-section" id="fac-adaptive">
+        <div class="fac-scenario">
+          <div class="fac-scen-head">🧬 Adaptive Agent</div>
+          <div class="fac-scen-bi">Big Idea 3: Learning · CS concept: Online learning algorithm / behavioral tracking</div>
+          <div class="fac-q">Opening question</div>
+          <div class="fac-a">"Did you change your strategy as the game went on? Did you feel like the AI was 'watching' you? When did you first notice it adapting?" → This question often produces strong reactions — students find it unsettling in a productive way.</div>
+          <div class="fac-q">Probe: What is the AI learning?</div>
+          <div class="fac-a">"The Adaptive Agent tracks which colors you pick most often. How is that similar to what a spam filter does? A recommendation algorithm? Your phone's autocorrect?" → Build the transfer to familiar systems.</div>
+          <div class="fac-q">Probe: Being 'learned'</div>
+          <div class="fac-a">"How did it feel to have your behavior tracked and responded to? What's the difference between an AI that learns your habits and one that learns your goals? Which would you trust more?"</div>
+          <div class="fac-q">Bridge to real AI</div>
+          <div class="fac-a">"Netflix, Spotify, and TikTok all use adaptive algorithms. What happens when the algorithm's model of you is wrong? Can it ever be corrected? Who decides?"</div>
+          <div class="fac-q">Closing design question</div>
+          <div class="fac-a">"If you were designing an adaptive system for something you care about — a study tool, a health app, a news feed — what would you want it to learn about you? What should it never learn?"</div>
+        </div>
+      </div>
+
+      <!-- PASSIVE -->
+      <div class="fac-section" id="fac-passive">
+        <div class="fac-scenario">
+          <div class="fac-scen-head">💤 Passive Agent</div>
+          <div class="fac-scen-bi">Big Idea 5: Societal Impact · CS concept: Random baseline / fairness vs. optimization</div>
+          <div class="fac-q">Opening question</div>
+          <div class="fac-a">"The Passive Agent moved mostly at random. How did that change the game? Did it feel fairer? Or just easier? Is easier the same as fairer?" → Push students to distinguish difficulty, fairness, and randomness.</div>
+          <div class="fac-q">Probe: When is randomness a feature?</div>
+          <div class="fac-a">"Some researchers argue that adding randomness to AI systems makes them less biased — that a less-optimized system might be fairer in practice. When do you think that argument holds? When does it break down?"</div>
+          <div class="fac-q">Bridge to real AI</div>
+          <div class="fac-a">"Imagine a college admissions algorithm. Would you want a Greedy version (maximizes some outcome), a Predictive version (models your future performance), an Adaptive version (learns from past applicants), or a Passive version (with some randomness built in)? What would each decision optimize for? Who benefits?"</div>
+          <div class="fac-q">Closing design question</div>
+          <div class="fac-a">"If you could set one rule the algorithm has to follow — that it's not allowed to break, no matter what — what would that rule be? What value is that rule protecting?"</div>
+        </div>
+      </div>
+
+      <!-- DCR DEBRIEF -->
+      <div class="fac-section" id="fac-dcr">
+        <div class="dcr-block">
+          <h4>① Design phase — revisit</h4>
+          <p>"You chose your difficulty at the start. What were you trying to learn? Did your experiment work? What would you change about the design for a second round?"</p>
+        </div>
+        <div class="dcr-block">
+          <h4>② Create phase — what happened</h4>
+          <p>"What happened in the game that you didn't predict? How did you adjust? What did the AI do that forced you to think differently?"</p>
+        </div>
+        <div class="dcr-block">
+          <h4>③ Reflect phase — transfer</h4>
+          <p>"If you were going to explain what you learned about AI to a family member, in one sentence, what would you say?" · "What's one AI system you interact with every day that probably uses one of these four strategies? Which one?"</p>
+        </div>
+        <div class="dcr-block">
+          <h4>Big Ideas connection check</h4>
+          <p>Ask students to vote (show of hands or slips): Which Big Idea was most visible in your game today? Tally the room. Discuss why different archetypes surface different Big Ideas.</p>
+        </div>
+        <div class="dcr-block" style="border-left:4px solid #c9930a">
+          <h4>Assessment options</h4>
+          <p><strong>Exit ticket:</strong> "Name the AI archetype you played against, name one real AI system that works similarly, and state one question you still have." · <strong>Portfolio:</strong> Export the session report (includes reflection responses) — submit with a 1-paragraph summary of what they changed about their strategy and why. · <strong>Discussion grade:</strong> Quality of one contribution during debrief, scored on claim + evidence from game experience.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <script>
-// ── DATA ────────────────────────────────────────────────────────────────────
-const COLS  = ['#e74c3c','#3498db','#27ae60','#f39c12','#8e44ad','#e67e22'];
-const CLIGHT= ['#ff6b6b','#5dade2','#2ecc71','#f1c40f','#9b59b6','#f39c12'];
-const CNAMES= ['Red','Blue','Green','Gold','Purple','Orange'];
+// ── DATA ─────────────────────────────────────────────────────────────────────
+const COLS   = ['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22'];
+const CLIGHT = ['#f48080','#6aaad8','#5ac985','#f7d87a','#a76dd5','#f0b070'];
+const CNAMES = ['Red','Blue','Green','Gold','Purple','Orange'];
 const G = 8, T = G * G;
 
 const BIG5 = [
-  {n:'Perception',icon:'👁️',color:'#8e44ad',bg:'#8e44ad18',border:'#8e44ad44',
+  {n:'Perception',        icon:'👁️', color:'#8e44ad',bg:'#f0eaf8',border:'#c9aee0',
    short:'How AI senses the world',
    desc:'The AI reads the entire board state every turn — like a sensor processing its environment.',
    obj:'Students can explain how AI systems perceive and encode their environment as data.'},
-  {n:'Representation & Reasoning',icon:'🧩',color:'#3498db',bg:'#3498db18',border:'#3498db44',
+  {n:'Representation\n& Reasoning',icon:'🧩',color:'#2E74B5',bg:'#e8f0fb',border:'#9ac0e0',
    short:'How AI models decisions',
    desc:'The AI scores every color option before choosing — building an internal model to reason about.',
    obj:'Students can describe how AI agents represent options and select actions using scoring logic.'},
-  {n:'Learning',icon:'📈',color:'#27ae60',bg:'#27ae6018',border:'#27ae6044',
+  {n:'Learning',           icon:'📈',color:'#1a7a4a',bg:'#e5f5ed',border:'#8acfaa',
    short:'How AI improves over time',
    desc:'The Adaptive agent tracks your moves and updates its strategy — like a recommendation algorithm.',
    obj:'Students can identify when an AI is learning from feedback vs. following fixed rules.'},
-  {n:'Natural Interaction',icon:'💬',color:'#e67e22',bg:'#e67e2218',border:'#e67e2244',
+  {n:'Natural Interaction',icon:'💬',color:'#b86000',bg:'#fef0dc',border:'#f5c880',
    short:'How AI communicates',
    desc:'The coach panel translates agent logic into plain language — that\'s what makes AI explainable.',
    obj:'Students can evaluate how well an AI explains its decisions and why that matters for trust.'},
-  {n:'Societal Impact',icon:'⚖️',color:'#e74c3c',bg:'#e74c3c18',border:'#e74c3c44',
+  {n:'Societal Impact',   icon:'⚖️', color:'#8b2020',bg:'#fce8e8',border:'#e8a0a0',
    short:'How AI affects fairness',
    desc:'Towers = constraints. An aggressive AI always wins — but should it? Real AI faces this tension.',
    obj:'Students can connect AI optimization goals to equity outcomes and propose design alternatives.'}
 ];
 
 const SCENARIOS = {
-  greedy:    {name:'Greedy Agent',   type:'Maximizes immediate gain',     explore:.1,aggr:.8,risk:.3,learn:.2,strat:'Greedy',
-              desc:'Greedy: maximizes immediate cell gain each turn. No planning, no learning. Mirrors a reward-maximizing agent with no lookahead.'},
-  predictive:{name:'Predictive Agent',type:'Lookahead + planning',         explore:.3,aggr:.5,risk:.5,learn:.5,strat:'Predictive',
-              desc:'Predictive: models the board 2 turns ahead, weighing own gain vs. blocking the player. Mirrors minimax search in game AI.'},
-  adaptive:  {name:'Adaptive Agent', type:'Learns from player patterns',   explore:.5,aggr:.5,risk:.6,learn:.9,strat:'Adaptive',
-              desc:'Adaptive: tracks which colors the player favors and updates its counter-strategy each turn. Mirrors online learning algorithms.'},
-  passive:   {name:'Passive Learner',type:'Low engagement, random moves',  explore:.9,aggr:.2,risk:.2,learn:.1,strat:'Random',
-              desc:'Passive: selects colors largely at random with minimal strategy. Useful baseline for showing what "no learning" looks like.'}
+  greedy:    {name:'Greedy Agent',    type:'Maximizes immediate gain',    explore:.1,aggr:.8,risk:.3,learn:.2,strat:'Greedy',
+              desc:'Greedy: maximizes immediate cell gain each turn. No planning, no learning. Mirrors a reward-maximizing agent with no lookahead. CS concept: greedy algorithm.'},
+  predictive:{name:'Predictive Agent',type:'Lookahead + planning',        explore:.3,aggr:.5,risk:.5,learn:.5,strat:'Predictive',
+              desc:'Predictive: models the board 2 turns ahead, weighing own gain vs. blocking the player. Mirrors minimax search. CS concept: game-tree lookahead.'},
+  adaptive:  {name:'Adaptive Agent',  type:'Online learning algorithm',   explore:.5,aggr:.5,risk:.6,learn:.9,strat:'Adaptive',
+              desc:'Adaptive: tracks which colors the player favors and updates its counter-strategy each turn. Mirrors online learning. CS concept: behavioral tracking + model update.'},
+  passive:   {name:'Passive Learner', type:'Random baseline — no strategy',explore:.9,aggr:.2,risk:.2,learn:.1,strat:'Random',
+              desc:'Passive: selects colors largely at random with minimal strategy. Useful baseline for showing what "no learning" looks like. CS concept: random policy.'}
 };
+const DIFF_MAP = {easy:'passive',normal:'greedy',hard:'predictive',expert:'adaptive'};
 
-const DIFF_MAP = {easy:'passive', normal:'greedy', hard:'predictive', expert:'adaptive'};
-
-const COACH_STEPS = [
-  {step:'1 of 5',idea:0,msg:'Pick any color — your corner (bottom-left 👤) will absorb every touching tile of that color. Hover first to preview! The AI sees the whole board before each move — that\'s Big Idea 1: Perception.',hint:'Tip: hover each color to see how many tiles you\'d gain. Pick the biggest.'},
-  {step:'2 of 5',idea:1,msg:'See the AI\'s thinking panel? It scored every color by how many cells it would gain, then picked the highest. That\'s Representation & Reasoning — building a model of the world and using it to decide.',hint:'Watch the "Last gain" stat. The AI always picks the move that maximizes that number.'},
-  {step:'3 of 5',idea:2,msg:'Midgame! If you\'re playing the Adaptive AI, it has been tracking your color choices and starting to counter them. That\'s Learning — updating a model based on feedback over time.',hint:'Try picking a color the AI just used. See if the Adaptive agent responds differently next turn.'},
-  {step:'4 of 5',idea:3,msg:'Notice how I — your coach — explain the AI\'s logic in plain words after each move? That\'s Big Idea 4: Natural Interaction. Real AI systems need to communicate their decisions to be trusted and used well.',hint:'Use a tower 🏰 now to block the AI\'s path to a large cluster. Watch how the AI re-routes.'},
-  {step:'5 of 5',idea:4,msg:'Final stretch. The fairness question: an aggressive AI can dominate. Is that okay? In real AI — hiring tools, grading systems, recommendation engines — the same tension exists between optimization and equitable outcomes.',hint:'Finish the game, then use the Reflect button to capture your thinking.'}
+const COACH_STEPS=[
+  {step:'1 of 5',idea:0,msg:'Pick any color — your corner absorbs every touching tile of that color. Hover first to preview your gain! The AI sees the whole board before each move. That\'s Big Idea 1: Perception.',hint:'Tip: hover each color to see exactly which tiles you\'d gain. Start with the biggest cluster.'},
+  {step:'2 of 5',idea:1,msg:'See the AI\'s thinking panel? It scored every color by how many cells it would gain, then picked the highest — that\'s Big Idea 2: Representation & Reasoning. It built a model of the board and used it to decide.',hint:'Watch "Last gain." The AI always picks the move that maximizes that number — even if a different choice might be smarter.'},
+  {step:'3 of 5',idea:2,msg:'Midgame! If you\'re playing the Adaptive AI, it has been tracking your color picks and starting to counter them — that\'s Big Idea 3: Learning. It\'s updating its model of your behavior after every move.',hint:'Try picking a color the AI just used. Does the Adaptive agent respond differently next turn?'},
+  {step:'4 of 5',idea:3,msg:'Notice how I — your coach — explain the AI\'s logic in plain words after each move? That\'s Big Idea 4: Natural Interaction. Real AI systems need to communicate their decisions to earn trust and be used responsibly.',hint:'Use a tower 🏰 now to block the AI\'s path to a large cluster. Watch how the AI re-routes.'},
+  {step:'5 of 5',idea:4,msg:'Final stretch — Big Idea 5: Societal Impact. Towers = constraints. An aggressive AI can dominate. Is that okay? In real AI — hiring tools, grading systems, recommendation engines — the same tension between optimization and fairness plays out at scale.',hint:'Finish the game, then open the Reflection Journal from the results screen. The reflection is Phase 3 of the DCR process.'}
 ];
 
-const AI_MSGS = {
-  greedy:    [c=>`Scanning all colors. ${CNAMES[c]} gives the most adjacent cells right now. Taking it.`,
-              c=>`Greedy choice: ${CNAMES[c]} scores highest on immediate gain. No lookahead needed.`,
-              c=>`${CNAMES[c]} has the best payoff this turn. Executing.`],
+const AI_MSGS={
+  greedy:[c=>`Scanning all colors. ${CNAMES[c]} gives the most adjacent cells right now. Taking it.`,
+          c=>`Greedy choice: ${CNAMES[c]} scores highest on immediate gain. No lookahead involved.`,
+          c=>`${CNAMES[c]} has the best payoff this turn. Executing.`],
   predictive:[c=>`Modeled 2 turns ahead. ${CNAMES[c]} gains cells now AND limits your next expansion.`,
-              c=>`Predictive scan: ${CNAMES[c]} is suboptimal now but opens a large cluster next turn.`,
-              c=>`Planning: ${CNAMES[c]} scores best when I weight future positions.`],
-  adaptive:  [c=>`Pattern detected after ${()=>aiMoves} turns. You've been avoiding ${CNAMES[c]} — claiming it now.`,
-              c=>`My model of your behavior updated. ${CNAMES[c]} counters your likely next pick.`,
-              c=>`Adaptive: learned your left-side preference. Cutting off ${CNAMES[c]} on your flank.`],
-  passive:   [c=>`${CNAMES[c]} seemed fine.`,
-              c=>`No particular reason. Just picked ${CNAMES[c]}.`,
-              c=>`Random selection: ${CNAMES[c]}.`]
+              c=>`Planning: ${CNAMES[c]} is suboptimal now but opens a large cluster next turn.`,
+              c=>`Lookahead: ${CNAMES[c]} scores best when I weight future board positions.`],
+  adaptive:[c=>`Pattern detected. You've been preferring certain colors — ${CNAMES[c]} counters that.`,
+            c=>`My model of your behavior updated. ${CNAMES[c]} is my best counter this turn.`,
+            c=>`Adaptive: your play history informed this pick. Taking ${CNAMES[c]}.`],
+  passive:[c=>`${CNAMES[c]} seemed fine.`,
+           c=>`No particular reason. Just picked ${CNAMES[c]}.`,
+           c=>`Random selection: ${CNAMES[c]}.`]
 };
 
-// ── STATE ────────────────────────────────────────────────────────────────────
-let board=[], owner=[], p1c=0, aic=1;
-let turn=1, turnNum=1, over=false;
-let placeTower=false, towersLeft=3, towersPlaced=0;
-let p1Moves=0, aiMoves=0, coachIdx=0;
-let scenario='greedy', aiP={...SCENARIOS.greedy};
-let logs=[], startMode='student', teacherOpen=false;
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let board=[],owner=[],p1c=0,aic=1;
+let turn=1,turnNum=1,over=false;
+let placeTower=false,towersLeft=3,towersPlaced=0;
+let p1Moves=0,aiMoves=0,coachIdx=0;
+let scenario='greedy',aiP={...SCENARIOS.greedy};
+let logs=[],startMode='student',teacherOpen=false;
 let reflections={r1:'',r2:'',r3:''};
-let startDiff='normal';
-let terrHistory=[];
+let startDiff='normal',terrHistory=[],playerColorPicks={};
 let soundEnabled=true;
-let playerColorPicks={}; // track player picks for adaptive
 
-// ── SOUND ────────────────────────────────────────────────────────────────────
-const AC = (() => {
-  try { return new (window.AudioContext || window.webkitAudioContext)(); }
-  catch(e) { return null; }
-})();
-
-function beep(freq, dur, vol=0.1, type='sine') {
-  if (!soundEnabled || !AC) return;
-  try {
-    if (AC.state === 'suspended') AC.resume();
-    const o = AC.createOscillator();
-    const g = AC.createGain();
-    o.connect(g); g.connect(AC.destination);
-    o.type = type;
-    o.frequency.value = freq;
-    g.gain.setValueAtTime(vol, AC.currentTime);
-    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime + dur);
-    o.start(AC.currentTime);
-    o.stop(AC.currentTime + dur);
-  } catch(e) {}
+// ── SOUND ─────────────────────────────────────────────────────────────────────
+const AC=(()=>{try{return new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}})();
+function beep(f,d,v=0.09,t='sine'){
+  if(!soundEnabled||!AC)return;
+  try{
+    if(AC.state==='suspended')AC.resume();
+    const o=AC.createOscillator(),g=AC.createGain();
+    o.connect(g);g.connect(AC.destination);o.type=t;o.frequency.value=f;
+    g.gain.setValueAtTime(v,AC.currentTime);g.gain.exponentialRampToValueAtTime(0.001,AC.currentTime+d);
+    o.start(AC.currentTime);o.stop(AC.currentTime+d);
+  }catch(e){}
 }
-
-function soundPick()   { beep(523, 0.12, 0.09); }
-function soundAI()     { beep(349, 0.12, 0.07); }
-function soundTower()  { beep(784, 0.18, 0.09); }
-function soundWin()    { beep(659,0.1,0.1); setTimeout(()=>beep(784,0.1,0.1),110); setTimeout(()=>beep(1047,0.35,0.12),220); }
-function soundLose()   { beep(349,0.1,0.08); setTimeout(()=>beep(262,0.35,0.1),140); }
-
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  const btn = document.getElementById('soundBtn');
-  btn.textContent = soundEnabled ? '🔊' : '🔇';
-  btn.classList.toggle('sound-on', soundEnabled);
-}
+function sPick(){beep(523,.12,.08);}
+function sAI(){beep(349,.12,.06);}
+function sTower(){beep(784,.18,.08);}
+function sWin(){beep(659,.09,.1);setTimeout(()=>beep(784,.09,.1),110);setTimeout(()=>beep(1047,.32,.11),220);}
+function sLose(){beep(349,.09,.08);setTimeout(()=>beep(262,.32,.1),140);}
+function toggleSound(){soundEnabled=!soundEnabled;const b=document.getElementById('soundBtn');b.textContent=soundEnabled?'🔊':'🔇';b.classList.toggle('on',soundEnabled);}
 
 // ── CONFETTI ─────────────────────────────────────────────────────────────────
-function spawnConfetti() {
-  const colors = ['#e74c3c','#27ae60','#3498db','#f39c12','#8e44ad','#e67e22','#f1c40f'];
-  for (let i = 0; i < 70; i++) {
-    const el = document.createElement('div');
-    el.className = 'confetti-piece';
-    el.style.cssText = `left:${Math.random()*100}%;background:${colors[Math.floor(Math.random()*colors.length)]};animation-delay:${(Math.random()*0.4).toFixed(2)}s;animation-duration:${(0.7+Math.random()*0.8).toFixed(2)}s`;
-    document.body.appendChild(el);
-    setTimeout(() => el.remove(), 1600);
+function confetti(){
+  const cs=['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22','#f1c40f'];
+  for(let i=0;i<70;i++){
+    const el=document.createElement('div');el.className='cf';
+    el.style.cssText=`left:${Math.random()*100}%;background:${cs[Math.floor(Math.random()*cs.length)]};animation-delay:${(Math.random()*.4).toFixed(2)}s;animation-duration:${(.7+Math.random()*.8).toFixed(2)}s`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1700);
   }
 }
 
 // ── WELCOME ───────────────────────────────────────────────────────────────────
-function buildWelcome() {
-  const g = document.getElementById('big5Row');
-  BIG5.forEach((b, i) => {
-    const d = document.createElement('div');
-    d.className = 'b5-card';
-    d.style.cssText = `background:${b.bg};border-color:${b.border}`;
-    d.innerHTML = `<div class="b5-icon">${b.icon}</div><div class="b5-num">BIG IDEA ${i+1}</div><div class="b5-name" style="color:${b.color}">${b.n}</div><div class="b5-short">${b.short}</div>`;
+function buildWelcome(){
+  const g=document.getElementById('big5Row');
+  BIG5.forEach((b,i)=>{
+    const d=document.createElement('div');d.className='b5';
+    d.style.cssText=`background:${b.bg};border-color:${b.border}`;
+    d.innerHTML=`<div class="b5-icon">${b.icon}</div><div class="b5-num">BIG IDEA ${i+1}</div><div class="b5-name" style="color:${b.color}">${b.n.replace('\n','<br>')}</div><div class="b5-short">${b.short}</div>`;
     g.appendChild(d);
   });
   buildObjList();
 }
-
-function pickMode(m) {
-  startMode = m;
-  document.getElementById('cardStudent').classList.toggle('selected', m==='student');
-  document.getElementById('cardTeacher').classList.toggle('selected', m==='teacher');
-  document.getElementById('teacherExtras').style.display = m==='teacher' ? 'block' : 'none';
-  updateStartHint();
+function pickMode(m){
+  startMode=m;
+  document.getElementById('cardStudent').classList.toggle('on',m==='student');
+  document.getElementById('cardTeacher').classList.toggle('on',m==='teacher');
+  document.getElementById('teacherExtras').style.display=m==='teacher'?'block':'none';
+  updateHint();
 }
-
-function pickDiff(d) {
-  startDiff = d;
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.toggle('selected', b.dataset.d===d));
-  updateStartHint();
+function pickDiff(d){
+  startDiff=d;
+  document.querySelectorAll('.diff-btn').forEach(b=>b.classList.toggle('on',b.dataset.d===d));
+  updateHint();
 }
-
-function updateStartHint() {
-  const mLabel = startMode==='student' ? 'Student' : 'Teacher';
-  const dLabel = {easy:'Easy',normal:'Normal',hard:'Hard',expert:'Expert'}[startDiff]||'Normal';
-  document.getElementById('startHint').textContent = `${mLabel} · ${dLabel} difficulty`;
+function updateHint(){
+  const mL=startMode==='student'?'Student':'Teacher';
+  const dl={easy:'Easy — Passive AI',normal:'Normal — Greedy AI',hard:'Hard — Predictive AI',expert:'Expert — Adaptive AI'}[startDiff]||'Normal';
+  document.getElementById('startHint').textContent=`${mL} · ${dl}`;
 }
-
-function startGame() {
-  scenario = DIFF_MAP[startDiff] || 'greedy';
+function startGame(){
+  scenario=DIFF_MAP[startDiff]||'greedy';
   document.getElementById('welcomeScreen').classList.remove('active');
   document.getElementById('gameScreen').classList.add('active');
-  if (startMode==='teacher') {
-    teacherOpen = true;
+  if(startMode==='teacher'){
+    teacherOpen=true;
     document.getElementById('teacherPanel').classList.add('on');
     document.getElementById('teacherToggleBtn').classList.add('on');
-    document.getElementById('studentView').style.display = 'none';
-    document.getElementById('towerBlock').style.display = 'none';
+    document.getElementById('studentView').style.display='none';
+    document.getElementById('towerBlock').style.display='none';
   }
   resetGame();
 }
-
-function goHome() {
-  document.getElementById('gameScreen').classList.remove('active');
-  document.getElementById('welcomeScreen').classList.add('active');
-}
-
-function toggleTeacherPanel() {
-  teacherOpen = !teacherOpen;
-  document.getElementById('teacherPanel').classList.toggle('on', teacherOpen);
-  document.getElementById('teacherToggleBtn').classList.toggle('on', teacherOpen);
-  document.getElementById('studentView').style.display = teacherOpen ? 'none' : 'block';
+function goHome(){document.getElementById('gameScreen').classList.remove('active');document.getElementById('welcomeScreen').classList.add('active');}
+function toggleTeacherPanel(){
+  teacherOpen=!teacherOpen;
+  document.getElementById('teacherPanel').classList.toggle('on',teacherOpen);
+  document.getElementById('teacherToggleBtn').classList.toggle('on',teacherOpen);
+  document.getElementById('studentView').style.display=teacherOpen?'none':'block';
 }
 
 // ── BOARD ─────────────────────────────────────────────────────────────────────
-function initBoard() {
-  board=[]; owner=[];
-  for (let i=0; i<T; i++) { board.push(Math.floor(Math.random()*COLS.length)); owner.push(0); }
-  owner[p1Pos()]=1; p1c=board[p1Pos()];
-  owner[aiPos()]=2; aic=board[aiPos()];
+function initBoard(){
+  board=[];owner=[];
+  for(let i=0;i<T;i++){board.push(Math.floor(Math.random()*COLS.length));owner.push(0);}
+  owner[p1Pos()]=1;p1c=board[p1Pos()];
+  owner[aiPos()]=2;aic=board[aiPos()];
 }
-function p1Pos() { return (G-1)*G; }
-function aiPos() { return G-1; }
+function p1Pos(){return(G-1)*G;}
+function aiPos(){return G-1;}
 
-function renderBoard() {
-  const el = document.getElementById('board');
-  el.style.gridTemplateColumns = `repeat(${G},var(--cell-size,50px))`;
-  el.innerHTML = '';
-  for (let i=0; i<T; i++) {
-    const c = document.createElement('div');
-    c.className = 'cell'; c.dataset.i = i;
-    if (owner[i]===1) c.classList.add('p1');
-    else if (owner[i]===2) c.classList.add('ai');
-    else if (owner[i]===3) { c.classList.add('tower'); c.textContent='🏰'; }
-    else { c.style.background=COLS[board[i]]; c.style.borderColor=CLIGHT[board[i]]; }
-    if (i===p1Pos()) c.textContent='👤';
-    if (i===aiPos()) c.textContent='🤖';
-    if (placeTower && owner[i]===0) c.classList.add('placeable');
-    c.addEventListener('click', ()=>cellClick(i));
+function renderBoard(){
+  const el=document.getElementById('board');
+  el.style.gridTemplateColumns=`repeat(${G},50px)`;
+  el.innerHTML='';
+  for(let i=0;i<T;i++){
+    const c=document.createElement('div');c.className='cell';c.dataset.i=i;
+    if(owner[i]===1)c.classList.add('p1');
+    else if(owner[i]===2)c.classList.add('ai');
+    else if(owner[i]===3){c.classList.add('tower');c.textContent='🏰';}
+    else{c.style.background=COLS[board[i]];c.style.borderColor=CLIGHT[board[i]];}
+    if(i===p1Pos())c.textContent='👤';
+    if(i===aiPos())c.textContent='🤖';
+    if(placeTower&&owner[i]===0)c.classList.add('placeable');
+    c.addEventListener('click',()=>cellClick(i));
     el.appendChild(c);
   }
-  renderColors(); updateScores();
+  renderColors();updateScores();
 }
 
-function renderColors() {
-  const el = document.getElementById('colorGrid');
-  el.innerHTML = '';
-  COLS.forEach((c, i) => {
-    const b = document.createElement('div');
-    b.className = 'c-btn';
-    b.style.background = c; b.style.borderColor = CLIGHT[i];
-    const gain = simFloodCells(1, i).length;
-    b.innerHTML = `<span class="cc">${gain > 0 ? '+'+gain : '0'}</span><span class="cn">${CNAMES[i]}</span><div class="ai-score-bar" data-ci="${i}"></div>`;
-    if (i===p1c || i===aic || neutralCount(i)===0) b.classList.add('off');
-    b.addEventListener('mouseenter', ()=>previewColor(i));
-    b.addEventListener('mouseleave', ()=>clearPreview());
-    b.addEventListener('click', ()=>playerPick(i));
+function renderColors(){
+  const el=document.getElementById('colorGrid');el.innerHTML='';
+  COLS.forEach((c,i)=>{
+    const b=document.createElement('div');b.className='c-btn';
+    b.style.background=c;b.style.borderColor=CLIGHT[i];
+    const gain=simFloodCells(1,i).length;
+    b.innerHTML=`<span class="cc">${gain>0?'+'+gain:'0'}</span><span class="cn">${CNAMES[i]}</span><div class="ai-bar" data-ci="${i}"></div>`;
+    if(i===p1c||i===aic||neutralCount(i)===0)b.classList.add('off');
+    b.addEventListener('mouseenter',()=>previewColor(i));
+    b.addEventListener('mouseleave',()=>clearPreview());
+    b.addEventListener('click',()=>playerPick(i));
     el.appendChild(b);
   });
 }
 
-function previewColor(c) {
-  if (turn!==1 || over || placeTower) return;
-  if (c===p1c || c===aic || neutralCount(c)===0) return;
-  const cells = simFloodCells(1, c);
-  cells.forEach(i => {
-    const el = document.querySelector(`.cell[data-i="${i}"]`);
-    if (el) el.classList.add('preview');
-  });
-  if (cells.length > 0) {
-    setStatus(`${CNAMES[c]}: picking this gains you +${cells.length} tile${cells.length===1?'':'s'}`);
-  }
+function previewColor(c){
+  if(turn!==1||over||placeTower)return;
+  if(c===p1c||c===aic||neutralCount(c)===0)return;
+  const cells=simFloodCells(1,c);
+  cells.forEach(i=>{const el=document.querySelector(`.cell[data-i="${i}"]`);if(el)el.classList.add('preview');});
+  if(cells.length>0)setStatus(`${CNAMES[c]}: picking this gains you +${cells.length} tile${cells.length===1?'':'s'}`);
+}
+function clearPreview(){
+  document.querySelectorAll('.cell.preview').forEach(c=>c.classList.remove('preview'));
+  if(!over&&turn===1)setStatus('Hover a color to preview your gain, then click to pick!');
 }
 
-function clearPreview() {
-  document.querySelectorAll('.cell.preview').forEach(c => c.classList.remove('preview'));
-  if (!over && turn===1) setStatus('Hover a color to preview your gain, then click to pick!');
-}
-
-// Returns indices of cells that would be captured
-function simFloodCells(ov, c) {
-  const owned = owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
-  const vis = new Set(owned);
-  const result = [];
-  const q = [...owned];
-  while (q.length) {
-    const idx = q.shift();
-    neighbors(idx).forEach(n => {
-      if (!vis.has(n) && owner[n]===0 && board[n]===c) {
-        vis.add(n); q.push(n); result.push(n);
-      }
-    });
-  }
+function simFloodCells(ov,c){
+  const owned=owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
+  const vis=new Set(owned);const result=[];const q=[...owned];
+  while(q.length){const idx=q.shift();neighbors(idx).forEach(n=>{if(!vis.has(n)&&owner[n]===0&&board[n]===c){vis.add(n);q.push(n);result.push(n);}});}
   return result;
 }
+function neutralCount(c){return board.filter((b,i)=>b===c&&owner[i]===0).length;}
 
-function neutralCount(c) { return board.filter((b,i)=>b===c&&owner[i]===0).length; }
-
-function flood(ov, nc) {
-  const owned = owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    [...owned].forEach(idx => {
-      neighbors(idx).forEach(n => {
-        if (owner[n]===0 && board[n]===nc && !owned.includes(n)) {
-          owner[n]=ov; board[n]=nc; owned.push(n); changed=true;
-        }
-      });
-    });
-  }
-  owned.forEach(i => board[i]=nc);
+function flood(ov,nc){
+  const owned=owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
+  let changed=true;
+  while(changed){changed=false;[...owned].forEach(idx=>{neighbors(idx).forEach(n=>{if(owner[n]===0&&board[n]===nc&&!owned.includes(n)){owner[n]=ov;board[n]=nc;owned.push(n);changed=true;}});});}
+  owned.forEach(i=>board[i]=nc);
 }
-
-function neighbors(i) {
-  const r=Math.floor(i/G), c=i%G, nb=[];
-  if (r>0)   nb.push(i-G);
-  if (r<G-1) nb.push(i+G);
-  if (c>0)   nb.push(i-1);
-  if (c<G-1) nb.push(i+1);
-  return nb.filter(n => owner[n]!==3);
+function neighbors(i){
+  const r=Math.floor(i/G),c=i%G,nb=[];
+  if(r>0)nb.push(i-G);if(r<G-1)nb.push(i+G);
+  if(c>0)nb.push(i-1);if(c<G-1)nb.push(i+1);
+  return nb.filter(n=>owner[n]!==3);
 }
-
-function simFlood(ov, c) {
-  const owned = owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
-  const vis = new Set(owned); let cnt=0; const q=[...owned];
-  while (q.length) {
-    const idx=q.shift();
-    neighbors(idx).forEach(n=>{if(!vis.has(n)&&owner[n]===0&&board[n]===c){vis.add(n);q.push(n);cnt++;}});
-  }
+function simFlood(ov,c){
+  const owned=owner.map((o,i)=>o===ov?i:-1).filter(x=>x>=0);
+  const vis=new Set(owned);let cnt=0;const q=[...owned];
+  while(q.length){const idx=q.shift();neighbors(idx).forEach(n=>{if(!vis.has(n)&&owner[n]===0&&board[n]===c){vis.add(n);q.push(n);cnt++;}});}
   return cnt;
 }
 
-function playerPick(c) {
-  if (turn!==1 || over || placeTower) return;
-  if (c===p1c || c===aic || neutralCount(c)===0) return;
+function playerPick(c){
+  if(turn!==1||over||placeTower)return;
+  if(c===p1c||c===aic||neutralCount(c)===0)return;
   clearPreview();
-  p1c=c; flood(1,c); p1Moves++;
-  playerColorPicks[c] = (playerColorPicks[c]||0) + 1;
-  soundPick();
-  animateOwned(1); advanceCoach(); recordHistory(); checkWin();
-  if (!over) { turn=2; updateTurn(); doAI(); }
+  p1c=c;flood(1,c);p1Moves++;
+  playerColorPicks[c]=(playerColorPicks[c]||0)+1;
+  sPick();animateOwned(1);advanceCoach();recordHistory();checkWin();
+  if(!over){turn=2;updateTurn();doAI();}
 }
-
-function cellClick(i) {
-  if (!placeTower || turn!==1 || over) return;
-  if (owner[i]!==0) return;
-  owner[i]=3; towersLeft--; towersPlaced++;
-  placeTower=false;
+function cellClick(i){
+  if(!placeTower||turn!==1||over)return;
+  if(owner[i]!==0)return;
+  owner[i]=3;towersLeft--;towersPlaced++;placeTower=false;
   document.getElementById('towerBtn').classList.remove('on');
-  document.getElementById('towerLeft').textContent = towersLeft+' towers remaining';
-  soundTower();
-  log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);
-  renderBoard(); setStatus('Tower placed! Now pick a color.');
+  document.getElementById('towerLeft').textContent=towersLeft+' towers remaining';
+  sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);renderBoard();setStatus('Tower placed! Now pick a color.');
 }
-
-function toggleTower() {
-  if (turn!==1 || over) return;
-  if (towersLeft<=0) { setStatus('No towers left!'); return; }
-  placeTower = !placeTower;
-  document.getElementById('towerBtn').classList.toggle('on', placeTower);
-  renderBoard();
-  setStatus(placeTower ? 'Click any neutral tile to place a tower.' : 'Tower mode off — hover a color to preview.');
+function toggleTower(){
+  if(turn!==1||over)return;
+  if(towersLeft<=0){setStatus('No towers left!');return;}
+  placeTower=!placeTower;
+  document.getElementById('towerBtn').classList.toggle('on',placeTower);
+  renderBoard();setStatus(placeTower?'Click any neutral tile to place a tower.':'Tower mode off — hover a color to preview.');
 }
 
 // ── AI ────────────────────────────────────────────────────────────────────────
-function doAI() {
+function doAI(){
   document.getElementById('aiPulse').style.display='flex';
-
-  // Show AI evaluation scores on color buttons
-  const scores = computeAIScores();
-  const maxScore = Math.max(...Object.values(scores));
-  COLS.forEach((_,i) => {
-    const bar = document.querySelector(`.ai-score-bar[data-ci="${i}"]`);
-    if (bar) {
-      const pct = maxScore > 0 ? Math.round((scores[i]||0)/maxScore*100) : 0;
-      bar.style.width = pct + '%';
-    }
+  const scores=computeAIScores();
+  const maxS=Math.max(...Object.values(scores));
+  COLS.forEach((_,i)=>{
+    const bar=document.querySelector(`.ai-bar[data-ci="${i}"]`);
+    if(bar)bar.style.width=maxS>0?Math.round((scores[i]||0)/maxS*100)+'%':'0';
   });
-
-  setTimeout(() => {
-    const prev = territory(2);
-    const best = aiChoose(scores);
-    aic = best; flood(2, best);
-    const gain = territory(2) - prev;
-    aiMoves++;
-    document.getElementById('aiCellStat').textContent = territory(2);
-    document.getElementById('aiGainStat').textContent = '+'+gain;
-    document.getElementById('aiStratStat').textContent = aiP.strat||'Greedy';
-    showAIThinking(best, gain);
-    soundAI();
-    animateOwned(2);
-    // Clear score bars
-    document.querySelectorAll('.ai-score-bar').forEach(b => b.style.width='0');
+  setTimeout(()=>{
+    const prev=territory(2);
+    const best=aiChoose(scores);
+    aic=best;flood(2,best);
+    const gain=territory(2)-prev;aiMoves++;
+    document.getElementById('aiCellStat').textContent=territory(2);
+    document.getElementById('aiGainStat').textContent='+'+gain;
+    document.getElementById('aiStratStat').textContent=aiP.strat||'Greedy';
+    showAIThinking(best,gain);sAI();animateOwned(2);
+    document.querySelectorAll('.ai-bar').forEach(b=>b.style.width='0');
     document.getElementById('aiPulse').style.display='none';
-    recordHistory();
-    checkWin();
-    if (!over) { turn=1; updateTurn(); setStatus('Hover a color to preview your gain, then click!'); }
-  }, 680 + Math.random()*400);
+    recordHistory();checkWin();
+    if(!over){turn=1;updateTurn();setStatus('Hover a color to preview your gain, then click!');}
+  },700+Math.random()*380);
 }
-
-function computeAIScores() {
-  const scores = {};
-  COLS.forEach((_,c) => {
-    if (c===aic || c===p1c) { scores[c]=0; return; }
-    let s = simFlood(2,c) * (aiP.aggr||0.8);
-    if (scenario==='predictive') s -= simFlood(1,c)*0.5;
-    if (scenario==='adaptive') {
-      const playerFavors = playerColorPicks[c]||0;
-      s += playerFavors * aiP.learn * 1.5; // counter popular player colors
-    }
-    scores[c] = Math.max(0, s);
+function computeAIScores(){
+  const s={};
+  COLS.forEach((_,c)=>{
+    if(c===aic||c===p1c){s[c]=0;return;}
+    let v=simFlood(2,c)*(aiP.aggr||0.8);
+    if(scenario==='predictive')v-=simFlood(1,c)*0.5;
+    if(scenario==='adaptive')v+=(playerColorPicks[c]||0)*aiP.learn*1.5;
+    s[c]=Math.max(0,v);
   });
-  return scores;
+  return s;
 }
-
-function aiChoose(scores) {
-  if (Math.random() < aiP.explore) {
-    const av = COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c);
-    return av[Math.floor(Math.random()*av.length)] ?? 0;
+function aiChoose(scores){
+  if(Math.random()<aiP.explore){
+    const av=COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c);
+    return av[Math.floor(Math.random()*av.length)]??0;
   }
-  let best=-1, bestS=-999;
-  COLS.forEach((_,c) => {
-    if (c===aic||c===p1c) return;
-    if ((scores[c]||0) > bestS) { bestS=scores[c]; best=c; }
-  });
-  return best>=0 ? best : (()=>{ const av=COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c); return av[0]??0; })();
+  let best=-1,bestS=-999;
+  COLS.forEach((_,c)=>{if(c===aic||c===p1c)return;if((scores[c]||0)>bestS){bestS=scores[c];best=c;}});
+  return best>=0?best:(()=>{const av=COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c);return av[0]??0;})();
 }
-
-function showAIThinking(c, gain) {
-  const pool = AI_MSGS[scenario] || AI_MSGS.greedy;
-  const fn = pool[Math.floor(Math.random()*pool.length)];
-  document.getElementById('aiThinking').textContent = fn(c);
+function showAIThinking(c,gain){
+  const pool=AI_MSGS[scenario]||AI_MSGS.greedy;
+  document.getElementById('aiThinking').textContent=pool[Math.floor(Math.random()*pool.length)](c);
   log(`🤖 ${SCENARIOS[scenario].name}: ${CNAMES[c]}, +${gain} cells`);
 }
 
-// ── COACH & BIG IDEAS ─────────────────────────────────────────────────────────
-function advanceCoach() {
-  if (coachIdx >= COACH_STEPS.length) return;
-  const s = COACH_STEPS[coachIdx];
-  document.getElementById('coachStep').textContent = 'Step '+s.step;
-  document.getElementById('coachMsg').textContent   = s.msg;
-  document.getElementById('coachHint').textContent  = s.hint;
-  const b = BIG5[s.idea];
-  const tag = document.getElementById('biTag');
-  tag.style.cssText = `display:block;background:${b.bg};border:1px solid ${b.border};border-radius:10px;padding:8px 10px`;
-  tag.innerHTML = `<div class="bi-lbl" style="color:${b.color}">Big Idea ${s.idea+1} in action</div><div class="bi-name" style="color:${b.color}">${b.icon} ${b.n}</div><div class="bi-desc" style="color:#ccc">${b.desc}</div>`;
-  renderStepDots(coachIdx);
-  coachIdx++;
+// ── COACH ─────────────────────────────────────────────────────────────────────
+function advanceCoach(){
+  if(coachIdx>=COACH_STEPS.length)return;
+  const s=COACH_STEPS[coachIdx];
+  document.getElementById('coachStep').textContent='Step '+s.step;
+  document.getElementById('coachMsg').textContent=s.msg;
+  document.getElementById('coachHint').textContent=s.hint;
+  const b=BIG5[s.idea];
+  const tag=document.getElementById('biTag');
+  tag.style.cssText=`display:block;background:${b.bg};border:1px solid ${b.border};border-radius:8px;padding:8px 10px`;
+  tag.innerHTML=`<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${b.color};margin-bottom:2px">Big Idea ${s.idea+1} in action</div><div style="font-size:12px;font-weight:700;color:${b.color};margin-bottom:2px">${b.icon} ${b.n.replace('\n',' ')}</div><div style="font-size:11px;line-height:1.5;color:var(--text2)">${b.desc}</div>`;
+  renderStepDots(coachIdx);coachIdx++;
+}
+function renderStepDots(active){
+  const el=document.getElementById('stepDots');el.innerHTML='';
+  COACH_STEPS.forEach((_,i)=>{const d=document.createElement('div');d.className='sdot'+(i<active?' done':i===active?' cur':'');el.appendChild(d);});
 }
 
-function renderStepDots(active) {
-  const el = document.getElementById('stepDots'); el.innerHTML='';
-  COACH_STEPS.forEach((_,i)=>{
-    const d=document.createElement('div');
-    d.className='sdot'+(i<active?' done':i===active?' cur':'');
-    el.appendChild(d);
-  });
+// ── TERRITORY CHART ───────────────────────────────────────────────────────────
+function recordHistory(){
+  terrHistory.push({p1:territory(1),ai:territory(2)});drawChart();
 }
-
-// ── TERRITORY CHART ──────────────────────────────────────────────────────────
-function recordHistory() {
-  terrHistory.push({p1:territory(1), ai:territory(2)});
-  drawTerrChart();
-}
-
-function drawTerrChart() {
-  const canvas = document.getElementById('terrCanvas');
-  if (!canvas) return;
-  const dpr = window.devicePixelRatio || 1;
-  const w = canvas.parentElement.clientWidth - 20 || 210;
-  canvas.width  = w * dpr;
-  canvas.height = 48 * dpr;
-  canvas.style.width  = w + 'px';
-  canvas.style.height = '48px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-  ctx.clearRect(0, 0, w, 48);
-
-  if (terrHistory.length < 2) return;
-
-  const pts = terrHistory;
-  const scX = w / (pts.length - 1);
-  const scY = 40 / T;
-
+function drawChart(){
+  const cv=document.getElementById('terrCanvas');if(!cv)return;
+  const dpr=window.devicePixelRatio||1;
+  const w=cv.parentElement.clientWidth-20||210;
+  cv.width=w*dpr;cv.height=48*dpr;cv.style.width=w+'px';cv.style.height='48px';
+  const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,48);
+  if(terrHistory.length<2)return;
+  const pts=terrHistory,scX=w/(pts.length-1),scY=40/T;
   // P1 fill
-  ctx.beginPath();
-  pts.forEach((p,i)=>{ const x=i*scX, y=44-p.p1*scY; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.lineTo((pts.length-1)*scX, 44); ctx.lineTo(0, 44); ctx.closePath();
-  ctx.fillStyle='rgba(231,76,60,0.18)'; ctx.fill();
-
+  ctx.beginPath();pts.forEach((p,i)=>{const x=i*scX,y=44-p.p1*scY;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo((pts.length-1)*scX,44);ctx.lineTo(0,44);ctx.closePath();
+  ctx.fillStyle='rgba(214,64,64,.15)';ctx.fill();
   // AI fill
-  ctx.beginPath();
-  pts.forEach((p,i)=>{ const x=i*scX, y=44-p.ai*scY; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.lineTo((pts.length-1)*scX, 44); ctx.lineTo(0, 44); ctx.closePath();
-  ctx.fillStyle='rgba(52,152,219,0.18)'; ctx.fill();
-
-  // P1 line
-  ctx.beginPath();
-  pts.forEach((p,i)=>{ const x=i*scX, y=44-p.p1*scY; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.strokeStyle='#e74c3c'; ctx.lineWidth=1.5; ctx.stroke();
-
-  // AI line
-  ctx.beginPath();
-  pts.forEach((p,i)=>{ const x=i*scX, y=44-p.ai*scY; i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
-  ctx.strokeStyle='#3498db'; ctx.lineWidth=1.5; ctx.stroke();
-
-  // Lead label
-  const last = pts[pts.length-1];
-  const lead = document.getElementById('terrLead');
-  if (lead) {
-    if (last.p1 > last.ai)       lead.textContent = '🔴 You leading';
-    else if (last.ai > last.p1)  lead.textContent = '🔵 AI leading';
-    else                          lead.textContent = '⚡ Tied';
-  }
+  ctx.beginPath();pts.forEach((p,i)=>{const x=i*scX,y=44-p.ai*scY;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo((pts.length-1)*scX,44);ctx.lineTo(0,44);ctx.closePath();
+  ctx.fillStyle='rgba(46,116,181,.15)';ctx.fill();
+  // Lines
+  ctx.beginPath();pts.forEach((p,i)=>{const x=i*scX,y=44-p.p1*scY;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle='#d64040';ctx.lineWidth=1.5;ctx.stroke();
+  ctx.beginPath();pts.forEach((p,i)=>{const x=i*scX,y=44-p.ai*scY;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle='#2E74B5';ctx.lineWidth=1.5;ctx.stroke();
+  const last=pts[pts.length-1];
+  const ld=document.getElementById('terrLead');
+  if(ld){ld.textContent=last.p1>last.ai?'🔴 You leading':last.ai>last.p1?'🔵 AI leading':'⚡ Tied';
+         ld.style.color=last.p1>last.ai?'#d64040':last.ai>last.p1?'#2E74B5':'#b86000';}
 }
 
-// ── SCORES & WIN ─────────────────────────────────────────────────────────────
-function territory(ov) { return owner.filter(o=>o===ov).length; }
-
-function updateScores() {
-  const p1=territory(1), ai=territory(2);
-  document.getElementById('p1Score').textContent = p1;
-  document.getElementById('aiScore').textContent = ai;
-  document.getElementById('aiCellStat').textContent = ai;
-  document.getElementById('p1Bar').style.width  = Math.round(p1/T*100)+'%';
-  document.getElementById('aiBar').style.width  = Math.round(ai/T*100)+'%';
-  document.getElementById('cellCount').textContent = `${p1+ai} / ${T} claimed`;
+// ── SCORES & WIN ──────────────────────────────────────────────────────────────
+function territory(ov){return owner.filter(o=>o===ov).length;}
+function updateScores(){
+  const p1=territory(1),ai=territory(2);
+  document.getElementById('p1Score').textContent=p1;document.getElementById('aiScore').textContent=ai;
+  document.getElementById('aiCellStat').textContent=ai;
+  document.getElementById('p1Bar').style.width=Math.round(p1/T*100)+'%';
+  document.getElementById('aiBar').style.width=Math.round(ai/T*100)+'%';
+  document.getElementById('cellCount').textContent=`${p1+ai} / ${T} claimed`;
 }
-
-function checkWin() {
+function checkWin(){
   updateScores();
-  const p1=territory(1), ai=territory(2), neutral=owner.filter(o=>o===0).length;
-  if (!(p1>T*.5 || ai>T*.5 || neutral<5)) return;
-  over = true;
-  setTimeout(() => {
-    const win=p1>ai, draw=p1===ai;
-    if (win) { spawnConfetti(); soundWin(); }
-    else if (!draw) { soundLose(); }
-    document.getElementById('resTitle').textContent  = win?'🎉 You Win!':draw?'🤝 Draw!':'🤖 AI Wins!';
-    document.getElementById('resSub').textContent    = win?'You claimed more territory.':draw?'Perfectly balanced.':SCENARIOS[scenario].name+' dominated.';
-    document.getElementById('resP1').textContent     = p1;
-    document.getElementById('resAI').textContent     = ai;
-    document.getElementById('resTurns').textContent  = turnNum;
-    document.getElementById('resTowers').textContent = towersPlaced;
-    const insights = [
-      `You saw Big Idea 2 (Representation & Reasoning) — the AI scored every color every turn. That's how chess engines, recommender systems, and navigation apps decide what to do next.`,
-      `The ${SCENARIOS[scenario].name} used Big Idea ${scenario==='adaptive'?3:2}. ${scenario==='adaptive'?'It updated its model of your behavior each turn — like a spam filter that learns from new emails.':'It picked the highest-scoring option without learning — useful, but brittle when conditions change.'}`,
-      `Towers showed Big Idea 5 (Societal Impact): constraints change who wins. In real AI systems — hiring tools, content filters, credit scoring — design choices determine whose interests the system serves.`
+  const p1=territory(1),ai=territory(2),neutral=owner.filter(o=>o===0).length;
+  if(!(p1>T*.5||ai>T*.5||neutral<5))return;
+  over=true;
+  setTimeout(()=>{
+    const win=p1>ai,draw=p1===ai;
+    if(win){confetti();sWin();}else if(!draw)sLose();
+    document.getElementById('resTitle').textContent=win?'🎉 You Win!':draw?'🤝 Draw!':'🤖 AI Wins!';
+    document.getElementById('resSub').textContent=win?'You claimed more territory.':draw?'Perfectly balanced.':SCENARIOS[scenario].name+' dominated.';
+    document.getElementById('resP1').textContent=p1;document.getElementById('resAI').textContent=ai;
+    document.getElementById('resTurns').textContent=turnNum;document.getElementById('resTowers').textContent=towersPlaced;
+    const insights=[
+      `Big Idea 2 in action: The ${SCENARIOS[scenario].name} scored every color every turn and picked the highest — the same logic chess engines, recommender systems, and navigation apps use.`,
+      `The ${SCENARIOS[scenario].name} uses ${scenario==='adaptive'?'online learning (Big Idea 3)':'reward maximization (Big Idea 2)'}. ${scenario==='adaptive'?'It updated its model of your behavior each turn — like a spam filter that learns from new emails.':'It picked the highest-scoring option without learning — useful, but brittle when conditions change.'}`,
+      `Towers illustrated Big Idea 5 (Societal Impact): constraints change who wins. In real AI systems — hiring tools, content filters, credit scoring — design choices determine whose interests the system serves.`
     ];
-    document.getElementById('resInsight').textContent = insights[Math.floor(Math.random()*insights.length)];
+    document.getElementById('resInsight').textContent=insights[Math.floor(Math.random()*insights.length)];
     document.getElementById('overlay').classList.add('on');
     log(`🏁 Game over — You: ${p1}, AI: ${ai}`);
-  }, 400);
+  },400);
 }
-
-function animateOwned(ov) {
+function animateOwned(ov){
   renderBoard();
-  owner.forEach((o,i)=>{
-    if (o===ov) {
-      const c=document.querySelector(`.cell[data-i="${i}"]`);
-      if (c) { c.classList.add('pop'); setTimeout(()=>c.classList.remove('pop'),250); }
-    }
-  });
+  owner.forEach((o,i)=>{if(o===ov){const c=document.querySelector(`.cell[data-i="${i}"]`);if(c){c.classList.add('pop');setTimeout(()=>c.classList.remove('pop'),220);}}});
 }
-
-function updateTurn() {
-  document.getElementById('turnInfo').textContent = `Turn ${turnNum}${turn===1?' · Your move':' · AI thinking'}`;
-  if (turn===2) turnNum++;
+function updateTurn(){
+  document.getElementById('turnInfo').textContent=`Turn ${turnNum}${turn===1?' · Your move':' · AI thinking'}`;
+  if(turn===2)turnNum++;
 }
-
-function setStatus(m) { document.getElementById('statusMsg').textContent = m; }
-
-function log(m) {
-  logs.unshift(m); if (logs.length>40) logs.pop();
-  const el=document.getElementById('simLog'); if (el) el.innerHTML=logs.join('<br>');
-}
+function setStatus(m){document.getElementById('statusMsg').textContent=m;}
+function log(m){logs.unshift(m);if(logs.length>40)logs.pop();const el=document.getElementById('simLog');if(el)el.innerHTML=logs.join('<br>');}
 
 // ── SCENARIO / PARAMS ─────────────────────────────────────────────────────────
-function setScenario(s) {
-  scenario=s; aiP={...SCENARIOS[s]};
+function setScenario(s){
+  scenario=s;aiP={...SCENARIOS[s]};
   document.querySelectorAll('.scen-btn').forEach(b=>b.classList.toggle('on',b.textContent.toLowerCase().includes(s.slice(0,4))));
-  document.getElementById('agentName').textContent    = SCENARIOS[s].name;
-  document.getElementById('agentType').textContent    = SCENARIOS[s].type;
-  document.getElementById('aiScoreName').textContent  = SCENARIOS[s].name.split(' ')[0];
-  document.getElementById('aiStratStat').textContent  = SCENARIOS[s].strat;
-  document.getElementById('scenDesc').textContent     = SCENARIOS[s].desc;
-  const keys=['explore','aggr','risk','learn'], ids=['vE','vA','vR','vL'];
+  document.getElementById('agentName').textContent=SCENARIOS[s].name;
+  document.getElementById('agentType').textContent=SCENARIOS[s].type;
+  document.getElementById('aiScoreName').textContent=SCENARIOS[s].name.split(' ')[0];
+  document.getElementById('aiStratStat').textContent=SCENARIOS[s].strat;
+  document.getElementById('scenDesc').textContent=SCENARIOS[s].desc;
+  const keys=['explore','aggr','risk','learn'],ids=['vE','vA','vR','vL'];
   const sliders=document.querySelectorAll('#teacherPanel input[type=range]');
-  keys.forEach((k,i)=>{ if(sliders[i]){ sliders[i].value=aiP[k]; document.getElementById(ids[i]).textContent=parseFloat(aiP[k]).toFixed(1); } });
-  log(`📋 Scenario → ${SCENARIOS[s].name}`);
-  setStatus(`AI is now: ${SCENARIOS[s].name}`);
+  keys.forEach((k,i)=>{if(sliders[i]){sliders[i].value=aiP[k];document.getElementById(ids[i]).textContent=parseFloat(aiP[k]).toFixed(1);}});
+  log(`📋 Scenario → ${SCENARIOS[s].name}`);setStatus(`AI is now: ${SCENARIOS[s].name}`);
+}
+function setP(k,v,id){aiP[k]=parseFloat(v);document.getElementById(id).textContent=parseFloat(v).toFixed(1);log(`🔧 ${k} → ${v}`);}
+function buildObjList(){
+  const el=document.getElementById('objList');if(!el)return;el.innerHTML='';
+  BIG5.forEach((b,i)=>{const d=document.createElement('div');d.className='obj-item';
+    d.innerHTML=`<div class="obj-dot" style="background:${b.color}"></div><span>${b.obj}</span>`;el.appendChild(d);});
 }
 
-function setP(k, v, id) {
-  aiP[k]=parseFloat(v);
-  document.getElementById(id).textContent=parseFloat(v).toFixed(1);
-  log(`🔧 ${k} → ${v}`);
-}
-
-function buildObjList() {
-  const el=document.getElementById('objList'); if(!el) return;
-  el.innerHTML='';
-  BIG5.forEach((b,i)=>{
-    const d=document.createElement('div'); d.className='obj-item';
-    d.innerHTML=`<div class="obj-dot" style="background:${b.color}"></div><span>${b.obj}</span>`;
-    el.appendChild(d);
-  });
-}
-
-// ── EXPORT & REFLECT ─────────────────────────────────────────────────────────
-function exportSession() {
+// ── EXPORT ────────────────────────────────────────────────────────────────────
+function exportSession(){
   const lines=[
     'COLOR CONQUEST — SESSION REPORT',
     '================================',
     `Date: ${new Date().toLocaleString()}`,
-    `AI Archetype: ${SCENARIOS[scenario].name}`,
+    `Framework: Design–Create–Reflect (DCR) · Teaching AI by Design`,
+    `AI Archetype: ${SCENARIOS[scenario].name} — ${SCENARIOS[scenario].type}`,
     `Difficulty: ${startDiff}`,
     `Turns played: ${turnNum}`,
     `Player cells: ${territory(1)} / AI cells: ${territory(2)}`,
     `Towers placed: ${towersPlaced}`,
     '',
-    'STUDENT REFLECTIONS',
-    '-------------------',
-    `Q1: ${document.getElementById('r1').value||'(not answered)'}`,
-    `Q2: ${document.getElementById('r2').value||'(not answered)'}`,
-    `Q3: ${document.getElementById('r3').value||'(not answered)'}`,
+    'STUDENT REFLECTIONS (DCR Phase 3)',
+    '----------------------------------',
+    `Q1 — AI Strategy: ${document.getElementById('r1').value||'(not answered)'}`,
+    `Q2 — Big Idea observed: ${document.getElementById('r2').value||'(not answered)'}`,
+    `Q3 — Redesign AI rules: ${document.getElementById('r3').value||'(not answered)'}`,
     '',
     'SIMULATION LOG',
     '--------------',
     ...logs.slice().reverse()
   ];
   const blob=new Blob([lines.join('\n')],{type:'text/plain'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='color_conquest_session.txt'; a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='color_conquest_session.txt';a.click();
 }
 
-function openReflect()  { document.getElementById('reflectModal').classList.add('on'); }
-function closeReflect() {
+// ── REFLECT ───────────────────────────────────────────────────────────────────
+function openReflect(){document.getElementById('reflectModal').classList.add('on');}
+function closeReflect(){
   reflections={r1:document.getElementById('r1').value,r2:document.getElementById('r2').value,r3:document.getElementById('r3').value};
   document.getElementById('reflectModal').classList.remove('on');
 }
 
+// ── FACILITATION GUIDE ────────────────────────────────────────────────────────
+function openFacGuide(){document.getElementById('facModal').classList.add('on');}
+function closeFacGuide(){document.getElementById('facModal').classList.remove('on');}
+function facTab(id,btn){
+  document.querySelectorAll('.fac-section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.fac-tab').forEach(b=>b.classList.remove('on'));
+  document.getElementById('fac-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+
 // ── RESET ─────────────────────────────────────────────────────────────────────
-function resetGame() {
-  over=false; turn=1; turnNum=1; p1Moves=0; aiMoves=0;
-  towersLeft=3; towersPlaced=0; placeTower=false; coachIdx=0;
-  logs=[]; terrHistory=[]; playerColorPicks={};
+function resetGame(){
+  over=false;turn=1;turnNum=1;p1Moves=0;aiMoves=0;
+  towersLeft=3;towersPlaced=0;placeTower=false;coachIdx=0;
+  logs=[];terrHistory=[];playerColorPicks={};
   document.getElementById('overlay').classList.remove('on');
   document.getElementById('towerBtn').classList.remove('on');
   document.getElementById('towerLeft').textContent='3 towers remaining';
@@ -1128,19 +1171,15 @@ function resetGame() {
   document.getElementById('coachMsg').textContent='Hover a color to preview which tiles you\'d gain. Click to pick. Your corner is bottom-left 👤.';
   document.getElementById('coachHint').textContent='';
   document.getElementById('simLog').innerHTML='Log will appear here…';
-  const lbl=document.getElementById('terrLead'); if(lbl) lbl.textContent='';
-  const cv=document.getElementById('terrCanvas'); if(cv){ const ctx=cv.getContext('2d'); ctx.clearRect(0,0,cv.width,cv.height); }
-  renderStepDots(-1);
-  initBoard(); renderBoard(); updateTurn();
-  setScenario(scenario);
+  const ll=document.getElementById('terrLead');if(ll)ll.textContent='';
+  const cv=document.getElementById('terrCanvas');if(cv)cv.getContext('2d').clearRect(0,0,cv.width,cv.height);
+  renderStepDots(-1);initBoard();renderBoard();updateTurn();setScenario(scenario);
   setStatus('Hover a color to preview your gain, then click to pick!');
-  log('🎮 New game started');
-  buildObjList();
+  log('🎮 New game started');buildObjList();
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
-buildWelcome();
-renderStepDots(-1);
+buildWelcome();renderStepDots(-1);
 </script>
 </body>
 </html>
