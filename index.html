@@ -397,11 +397,11 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
     </div>
     <div class="hero-text">
       <h1>Color <span>Conquest</span></h1>
-      <p>A territory strategy game that makes AI behavioral profiles tangible — students play against four distinct AI archetypes and reflect on how each one thinks.</p>
+      <p>Build problem-solving skills and human-AI collaboration literacy. Investigate how AI agents decide, predict their next move, and reflect on how humans and AI think differently — and when to work together.</p>
       <div class="hero-badges">
         <span class="badge bg">Grades 6–12</span>
         <span class="badge bb">~20 min · AI Literacy · 5 Big Ideas</span>
-        <span class="badge by">DCR: Design · Create · Reflect</span>
+        <span class="badge by">DCR: Design · Create · Reflect</span><span class="badge" style="background:#e5f5ed;border:1px solid #8acfaa;color:#1a7a4a">Problem-Solving Skills</span><span class="badge" style="background:#f0eaf8;border:1px solid #c9aee0;color:#8e44ad">Human-AI Collab</span>
       </div>
     </div>
   </div>
@@ -422,7 +422,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
     <div class="sel-card on" id="cardStudent" onclick="pickMode('student')">
       <div class="sc-icon">🎮</div>
       <div class="sc-title">I'm a Student</div>
-      <div class="sc-desc">Play the game, get coached through the 5 Big Ideas of AI, and complete a structured reflection.</div>
+      <div class="sc-desc">Practice decomposition, prediction, and evaluation while playing AI. Before each AI move, form a prediction. After it moves, check your mental model — that gap is where learning happens.</div>
       <div class="sc-badge">Player</div>
     </div>
     <div class="sel-card" id="cardTeacher" onclick="pickMode('teacher')">
@@ -602,6 +602,15 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
         <div class="scen-prompt" id="scenPrompt">
           <div class="sp-q" id="scenPromptQ"></div>
           <div id="scenPromptBody"></div>
+        </div>
+        <div id="psTag" style="display:none;margin-top:8px;background:#e5f5ed;border:1px solid #8acfaa;border-radius:8px;padding:9px 11px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#1a7a4a;margin-bottom:3px">PROBLEM-SOLVING SKILL</div>
+          <div id="psTagName" style="font-size:12px;font-weight:800;color:#1a7a4a;margin-bottom:2px"></div>
+          <div id="psTagDesc" style="font-size:11px;line-height:1.5;color:#3a5070"></div>
+        </div>
+        <div id="predictPanel" style="display:none;margin-top:8px;background:#fef6e4;border:1px solid #f5d87a;border-radius:8px;padding:9px 11px">
+          <div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:#c9930a;margin-bottom:3px">MENTAL MODEL CHECK</div>
+          <div id="predictMsg" style="font-size:12px;color:#3a5070;line-height:1.6"></div>
         </div>
       </div>
 
@@ -849,6 +858,14 @@ const SCENARIOS = {
   passive:   {name:'Passive Learner', type:'Random baseline — no strategy',explore:.9,aggr:.2,risk:.2,learn:.1,strat:'Random',
               desc:'Passive: selects colors largely at random with minimal strategy. Useful baseline for showing what "no learning" looks like. CS concept: random policy.'}
 };
+const PROBLEM_SKILLS = [
+  {name:'Pattern Recognition', color:'#8e44ad', desc:'Scan the board before picking. Which color cluster is largest? Where does your territory touch the most tiles? Notice patterns before you act.'},
+  {name:'Decomposition', color:'#2E74B5', desc:'Break this decision into parts: (1) What do I gain? (2) What does this open next turn? (3) What does it give the AI? Solve each part separately.'},
+  {name:'Prediction & Hypothesis', color:'#1a7a4a', desc:'You are now forming a hypothesis about the AI strategy. Predict its next move. A good mental model lets you anticipate, not just react.'},
+  {name:'Evaluation', color:'#b86000', desc:'Compare what happened to what you predicted. If you were wrong, update your model. Evaluation is how humans and AI improve over time.'},
+  {name:'Design Thinking', color:'#8b2020', desc:'You are designing constraints (towers) that change what both players can do. This is how humans shape AI: by setting rules the system must follow.'}
+];
+
 const DIFF_MAP = {easy:'passive',normal:'greedy',hard:'predictive',expert:'adaptive'};
 
 const COACH_STEPS=[
@@ -1144,6 +1161,35 @@ function showScenPrompt(type, c, g){
   b.textContent = msg;
 }
 // ── CONFETTI ─────────────────────────────────────────────────────────────────
+function showPSSkill(ideaIdx){
+  var ps=PROBLEM_SKILLS[ideaIdx];if(!ps)return;
+  var tag=document.getElementById('psTag'),nm=document.getElementById('psTagName'),ds=document.getElementById('psTagDesc');
+  if(!tag)return;
+  tag.style.display='block';tag.style.borderColor=ps.color;
+  tag.querySelector('div').style.color=ps.color;
+  nm.textContent=ps.name;nm.style.color=ps.color;ds.textContent=ps.desc;
+}
+function showPredictPrompt(){
+  var el=document.getElementById('predictPanel'),msg=document.getElementById('predictMsg');
+  if(!el)return;
+  var hints={
+    greedy:'The Greedy agent always picks the color with the most reachable tiles -- scan for the biggest cluster.',
+    predictive:'The Predictive agent may sacrifice immediate gain to block your best next move.',
+    adaptive:'The Adaptive agent has been watching your picks -- it will counter your most-used color.',
+    passive:'The Passive agent picks mostly at random -- there may be no pattern to find.'
+  };
+  el.style.display='block';
+  msg.innerHTML='<strong>Predict before the AI moves:</strong> Which color do you think it will choose? Why?<br>'
+    +'<span style=\'font-size:10px;color:#c9930a;margin-top:4px;display:block\'>Hint: '
+    +(hints[scenario]||'Think about what you know about this AI strategy.')+'</span>';
+}
+function showPredictResult(c){
+  var el=document.getElementById('predictPanel'),msg=document.getElementById('predictMsg');
+  if(!el)return;
+  el.style.display='block';
+  msg.innerHTML='The AI chose <strong style=\'color:'+COLS[c]+'\'>'+CNAMES[c]+'</strong>. Did your prediction match?<br>'
+    +'<span style=\'font-size:11px\'>If not -- what did you miss about its strategy? Updating your model when wrong is how both humans and AI improve over time.</span>';
+}
 function confetti(){
   const cs=['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22','#f1c40f'];
   for(let i=0;i<70;i++){
@@ -1293,7 +1339,7 @@ function playerPick(c){
   p1c=c;flood(1,c);p1Moves++;
   playerColorPicks[c]=(playerColorPicks[c]||0)+1;document.getElementById('firstTip').style.display='none';
   sPick();animateOwned(1);advanceCoach();recordHistory();checkEvent();checkWin();showScenPrompt('p1',c,territory(1));
-  if(!over){turn=2;updateTurn();doAI();}
+  if(!over){turn=2;updateTurn();showPredictPrompt();doAI();}
 }
 function cellClick(i){
   if(!placeTower||turn!==1||over)return;
@@ -1356,7 +1402,7 @@ function aiChoose(scores){
   COLS.forEach((_,c)=>{if(c===aic||c===p1c)return;if((scores[c]||0)>bestS){bestS=scores[c];best=c;}});
   return best>=0?best:(()=>{const av=COLS.map((_,i)=>i).filter(i=>i!==aic&&i!==p1c);return av[0]??0;})();
 }
-function showAIThinking(c,gain){showScenPrompt('ai',c,gain);
+function showAIThinking(c,gain){showScenPrompt('ai',c,gain);showPredictResult(c);
   const pool=AI_MSGS[scenario]||AI_MSGS.greedy;
   document.getElementById('aiThinking').textContent=pool[Math.floor(Math.random()*pool.length)](c);
   log(`🤖 ${SCENARIOS[scenario].name}: ${CNAMES[c]}, +${gain} cells`);
@@ -1373,7 +1419,7 @@ function advanceCoach(){
   const tag=document.getElementById('biTag');
   tag.style.cssText=`display:block;background:${b.bg};border:1px solid ${b.border};border-radius:8px;padding:8px 10px`;
   tag.innerHTML=`<div style="font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:${b.color};margin-bottom:2px">Big Idea ${s.idea+1} in action</div><div style="font-size:12px;font-weight:700;color:${b.color};margin-bottom:2px">${b.icon} ${b.n.replace('\n',' ')}</div><div style="font-size:11px;line-height:1.5;color:var(--text2)">${b.desc}</div>`;
-  renderStepDots(coachIdx);coachIdx++;
+  renderStepDots(coachIdx);showPSSkill(s.idea);coachIdx++;
 }
 function renderStepDots(active){
   const el=document.getElementById('stepDots');el.innerHTML='';
