@@ -258,6 +258,10 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 
 /* Status bar */
 .statusbar{padding:7px 14px;background:var(--accent-dk);border-top:1px solid rgba(255,255,255,.1);display:flex;align-items:center;gap:10px;font-size:12px}
+.turn-banner{display:flex;align-items:center;justify-content:center;padding:8px 16px;font-size:13px;font-weight:700;gap:8px;border-bottom:3px solid transparent;transition:all .3s}
+.turn-banner.turn-you{background:linear-gradient(90deg,#fce8e8,#fff6f6);color:var(--p1);border-bottom-color:var(--p1)}
+.turn-banner.turn-ai{background:linear-gradient(90deg,var(--surf3),var(--surf2));color:var(--accent);border-bottom-color:var(--accent);animation:aipulse .8s ease-in-out infinite alternate}
+@keyframes aipulse{0%{opacity:.5}100%{opacity:1}}
 .status-msg{color:#9acbf0;font-weight:600;flex:1}
 .ai-pulse{display:none;align-items:center;gap:5px;color:#6aaad8;font-size:11px}
 .pdot{width:5px;height:5px;border-radius:50%;background:#9acbf0;animation:blink 1s infinite}
@@ -533,6 +537,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 
 
   <div class="ctx-bar" id="ctxBar" style="display:none"><div class="ctx-dot" id="ctxDot"></div><span class="ctx-label" id="ctxLabel">Scenario</span><span class="ctx-text" id="ctxText"></span><span class="ctx-stake" id="ctxStake"></span></div>
+  <div id="turnBanner" class="turn-banner turn-you"><span style="font-size:16px">&#128100;</span> <strong>Your turn</strong> &mdash; hover a color to preview your gain, then click to claim</div>
   <div class="game-body">
     <!-- LEFT -->
     <div class="left-col">
@@ -1270,7 +1275,7 @@ function renderBoard(){
     else{c.style.background=COLS[board[i]];c.style.borderColor=CLIGHT[board[i]];}
     if(i===p1Pos())c.textContent='👤';
     if(i===aiPos())c.textContent='🤖';
-    if(placeTower&&owner[i]===0)c.classList.add('placeable');
+    if(placeTower&&owner[i]===0){c.classList.add('placeable');c.addEventListener('mouseenter',function(){showTowerHint(i);});c.addEventListener('mouseleave',clearTowerHint);}
     c.addEventListener('click',()=>cellClick(i));
     el.appendChild(c);
   }
@@ -1354,7 +1359,7 @@ function toggleTower(){
   if(towersLeft<=0){setStatus('No towers left!');return;}
   placeTower=!placeTower;
   document.getElementById('towerBtn').classList.toggle('on',placeTower);
-  renderBoard();setStatus(placeTower?'Tower mode ON — click any neutral tile to build a wall. The flood fill cannot pass through towers.':'Tower mode off — hover a color to preview.');
+  renderBoard();setStatus(placeTower?'Tower mode ON — hover any neutral tile to see strategic impact, click to place':'Tower mode off — hover a color to preview your gain.');
 }
 
 // ── AI ────────────────────────────────────────────────────────────────────────
@@ -1495,8 +1500,44 @@ function animateOwned(ov){
   owner.forEach((o,i)=>{if(o===ov){const c=document.querySelector(`.cell[data-i="${i}"]`);if(c){c.classList.add('pop');setTimeout(()=>c.classList.remove('pop'),220);}}});
 }
 function updateTurn(){
-  document.getElementById('turnInfo').textContent=`Turn ${turnNum}${turn===1?' · Your move':' · AI thinking'}`;
-  if(turn===2)turnNum++;
+  var banner=document.getElementById('turnBanner');
+  var info=document.getElementById('turnInfo');
+  if(turn===1){
+    info.textContent='Turn '+turnNum+' · YOUR MOVE';
+    info.style.cssText='background:rgba(214,64,64,.22);color:var(--p1);font-weight:800;border-radius:6px;padding:4px 11px;font-size:12px';
+    if(banner){banner.innerHTML='<span style="font-size:16px">👤</span> <strong>Your turn</strong> — hover a color to preview your gain, then click to claim';banner.className='turn-banner turn-you';}
+  } else {
+    info.textContent='Turn '+turnNum+' · AI thinking…';
+    info.style.cssText='background:rgba(46,116,181,.22);color:var(--accent);font-weight:700;border-radius:6px;padding:4px 11px;font-size:12px';
+    if(banner){banner.innerHTML='<span style="font-size:16px">🤖</span> <strong>AI is choosing</strong> — watch the color score bars update';banner.className='turn-banner turn-ai';}
+    turnNum++;
+  }
+}
+function countAIReachable(excludeCell){
+  var start=aiPos(),q=[start],vis=new Set([start]);
+  while(q.length){
+    var idx=q.shift();
+    neighbors(idx).forEach(function(n){
+      if(!vis.has(n)&&owner[n]!==1&&owner[n]!==3&&n!==excludeCell){vis.add(n);q.push(n);}
+    });
+  }
+  return vis.size-1;
+}
+function showTowerHint(i){
+  var without=countAIReachable(-1);
+  var withT=countAIReachable(i);
+  var cutoff=Math.max(0,without-withT);
+  var aiGain=simFlood(2,board[i]);
+  var msg;
+  if(cutoff>=8) msg='Strong placement! Cuts AI off from ~'+cutoff+' tiles';
+  else if(cutoff>=3) msg='Good chokepoint — blocks AI from ~'+cutoff+' tiles';
+  else msg='Low impact here (~'+cutoff+' tiles blocked). Look for a corridor or cluster edge';
+  if(aiGain>=4) msg+=' + blocks a '+CNAMES[board[i]]+' cluster (AI would gain +'+aiGain+' here)';
+  msg+=' — '+towersLeft+' tower'+(towersLeft!==1?'s':'')+' left';
+  setStatus(msg);
+}
+function clearTowerHint(){
+  if(placeTower) setStatus('Tower mode ON — hover any neutral tile to see strategic impact, click to place');
 }
 function setStatus(m){document.getElementById('statusMsg').textContent=m;}
 function log(m){logs.unshift(m);if(logs.length>40)logs.pop();const el=document.getElementById('simLog');if(el)el.innerHTML=logs.join('<br>');}
