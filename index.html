@@ -171,6 +171,8 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 .c-btn{height:54px;border-radius:9px;border:3px solid transparent;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;flex-direction:column;box-shadow:0 3px 0 rgba(0,0,0,.18);position:relative;overflow:hidden}
 .c-btn:hover:not(.off){transform:translateY(-3px);box-shadow:0 6px 0 rgba(0,0,0,.18)}
 .c-btn.off{opacity:.28;cursor:not-allowed}
+.c-btn:not(.off).your-turn{animation:colorbtn-pulse 1.8s ease-in-out infinite}
+@keyframes colorbtn-pulse{0%,100%{box-shadow:0 3px 0 rgba(0,0,0,.18)}60%{box-shadow:0 3px 0 rgba(0,0,0,.18),0 0 10px rgba(255,255,255,.45)}}
 .c-btn .cc{font-size:11px;font-weight:800;color:rgba(255,255,255,.95)}
 .c-btn .cn{font-size:9px;color:rgba(255,255,255,.7)}
 .c-btn .ai-bar{position:absolute;bottom:0;left:0;height:4px;background:rgba(255,255,255,.55);transition:width .4s;width:0}
@@ -843,6 +845,16 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 </div>
 
 <script>
+window.onerror=function(msg,src,line,col,err){
+  var d=document.createElement('div');
+  d.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:12px 16px;font-family:monospace;font-size:12px;white-space:pre-wrap;cursor:pointer';
+  d.textContent='JS ERROR: '+msg+'\nLine '+line+(err?'\n'+err.stack:'');
+  d.onclick=function(){d.remove();};
+  document.body.appendChild(d);
+  return true;
+};
+</script>
+<script>
 // ── DATA ─────────────────────────────────────────────────────────────────────
 const COLS   = ['#d64040','#2E74B5','#27ae60','#f0b429','#8e44ad','#e67e22'];
 const CLIGHT = ['#f48080','#6aaad8','#5ac985','#f7d87a','#a76dd5','#f0b070'];
@@ -1319,6 +1331,7 @@ function renderColors(){
     const gain=simFloodCells(1,i).length;
     b.innerHTML=`<span class="cc">${gain>0?'+'+gain:'0'}</span><span class="cn">${CNAMES[i]}</span><div class="ai-bar" data-ci="${i}"></div>`;
     if(i===p1c||i===aic||neutralCount(i)===0)b.classList.add('off');
+    else if(turn===1&&!over)b.classList.add('your-turn');
     b.addEventListener('mouseenter',()=>previewColor(i));
     b.addEventListener('mouseleave',()=>clearPreview());
     b.addEventListener('click',()=>playerPick(i));
@@ -1376,7 +1389,11 @@ function playerPick(c){
   if(!over){turn=2;updateTurn();showPredictPrompt();doAI();}
 }
 function cellClick(i){
-  if(!placeTower||turn!==1||over)return;
+  if(!placeTower){
+    if(turn===1&&!over)setStatus('👈 Use the color buttons on the left to pick your color and expand territory!');
+    return;
+  }
+  if(turn!==1||over)return;
   if(owner[i]!==0)return;
   owner[i]=3;towersLeft--;towersPlaced++;placeTower=false;
   var tb=document.getElementById('towerBtn');
@@ -1409,6 +1426,7 @@ function doAI(){
     if(bar)bar.style.width=maxS>0?Math.round((scores[i]||0)/maxS*100)+'%':'0';
   });
   setTimeout(()=>{
+    try{
     if(nextAISkip){nextAISkip=false;log('📜 AI turn skipped — regulatory pause');document.getElementById('aiPulse').style.display='none';document.querySelectorAll('.ai-bar').forEach(b=>b.style.width='0');turn=1;updateTurn();setStatus('AI turn skipped — regulatory pause. Your move!');return;}
     const prev=territory(2);
     const best=aiChoose(scores);
@@ -1439,6 +1457,11 @@ function doAI(){
         ? `AI picked ${CNAMES[aic]} (+${gain} tile${gain!==1?'s':''}). Your turn — pick a color!`
         : `Your tower blocked the AI completely (0 tiles). Great wall! Your turn.`;
       setStatus(aiMsg);
+    }
+    }catch(e){
+      document.getElementById('aiPulse').style.display='none';
+      turn=1;updateTurn();
+      setStatus('⚠️ AI error — your turn. ('+e.message+')');
     }
   },700+Math.random()*380);
 }
