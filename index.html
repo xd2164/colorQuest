@@ -189,6 +189,13 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 .t-btn.on{background:#f5d87a;color:#5a3800;border-color:#d4950a}
 .t-btn.disabled{opacity:.35;cursor:not-allowed;border-color:var(--border);color:var(--text3)}
 .t-left{font-size:10px;color:var(--text3);text-align:center;margin-top:3px}
+.tower-slots{display:flex;gap:6px;justify-content:center;margin:6px 0 2px;font-size:20px;letter-spacing:2px}
+.tower-slot.used{opacity:.18;filter:grayscale(1)}
+.t-rule{font-size:9px;color:var(--text3);line-height:1.45;margin-top:5px;text-align:center;padding:0 2px}
+.ai-last-move{margin-top:6px;padding:7px 9px;border-radius:6px;font-size:11px;font-weight:700;background:rgba(46,116,181,.12);border:1px solid rgba(46,116,181,.25);color:var(--text2);display:none}
+.ai-last-move.show{display:block}
+.agent-card.flash{animation:aiflash .7s ease}
+@keyframes aiflash{0%{box-shadow:0 0 0 3px rgba(46,116,181,.7)}60%{box-shadow:0 0 0 3px rgba(46,116,181,.7)}100%{box-shadow:none}}
 
 /* BOARD */
 .board-col{display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:var(--bg)}
@@ -554,9 +561,11 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
         <div class="cell-ct" id="cellCount">2 / 64 claimed</div>
       </div>
       <div class="tower-block" id="towerBlock">
-        <div class="col-lbl">Tower defense</div>
-        <button class="t-btn" id="towerBtn" onclick="toggleTower()" title="Creates a wall on a neutral tile. The flood-fill CANNOT pass through it - tiles on the other side stay safe.">🏰 Place tower</button>
-        <div class="t-left" id="towerLeft">Towers: 3 left</div>
+        <div class="col-lbl">Towers (you only)</div>
+        <div class="tower-slots" id="towerSlots"><span class="tower-slot">🏰</span><span class="tower-slot">🏰</span><span class="tower-slot">🏰</span></div>
+        <button class="t-btn" id="towerBtn" onclick="toggleTower()">🏰 Place tower</button>
+        <div class="t-left" id="towerLeft">3 of 3 remaining</div>
+        <div class="t-rule">A tower blocks both players' flood fill. Only you can place them — 3 per game, cannot be moved.</div>
       </div>
     </div>
 
@@ -604,6 +613,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
           <div class="as"><span>Strategy</span><span id="aiStratStat">Greedy</span></div>
           <div class="as"><span>Last gain</span><span id="aiGainStat">—</span></div>
           <div class="thinking" id="aiThinking">Waiting for you to move first…</div>
+          <div class="ai-last-move" id="aiLastMove"></div>
         </div>
         <div class="scen-prompt" id="scenPrompt">
           <div class="sp-q" id="scenPromptQ"></div>
@@ -1354,7 +1364,10 @@ function cellClick(i){
   var tb=document.getElementById('towerBtn');
   tb.classList.remove('on');
   if(towersLeft<=0)tb.classList.add('disabled');
-  document.getElementById('towerLeft').textContent=towersLeft<=0?'No towers left':'Towers: '+towersLeft+' left';
+  document.getElementById('towerLeft').textContent=towersLeft+' of 3 remaining';
+  var slots=document.querySelectorAll('.tower-slot');
+  for(var s=0;s<3;s++){slots[s]&&slots[s].classList.toggle('used',s>=(towersLeft));}
+
   sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);
   advanceCoach();recordHistory();checkWin();
   if(!over){renderBoard();setStatus("Tower placed — AI must reroute! Watch how it responds.");turn=2;updateTurn();showPredictPrompt();doAI();}
@@ -1389,12 +1402,24 @@ function doAI(){
     showAIThinking(best,gain);sAI();animateOwned(2);
     document.querySelectorAll('.ai-bar').forEach(b=>b.style.width='0');
     document.getElementById('aiPulse').style.display='none';
+    // Flash agent card and show last-move callout
+    var ac=document.querySelector('.agent-card');
+    if(ac){ac.classList.remove('flash');void ac.offsetWidth;ac.classList.add('flash');}
+    var lm=document.getElementById('aiLastMove');
+    if(lm){
+      lm.className='ai-last-move show';
+      lm.style.borderColor=gain>0?'rgba(46,116,181,.4)':'rgba(52,211,153,.4)';
+      lm.style.background=gain>0?'rgba(46,116,181,.1)':'rgba(52,211,153,.1)';
+      lm.innerHTML=gain>0
+        ?'🤖 AI picked <strong>'+CNAMES[best]+'</strong> &rarr; claimed <strong>+'+gain+' tile'+(gain!==1?'s':'')+'</strong>'
+        :'🏰 Your tower blocked the AI! 0 tiles gained &mdash; great placement!';
+    }
     recordHistory();checkWin();
     if(!over){
       turn=1;updateTurn();
       const aiMsg = gain>0
-        ? `AI picked ${CNAMES[aic]} and claimed +${gain} tile${gain!==1?'s':''}. Your turn!`
-        : `Your tower blocked the AI — 0 tiles gained! 🎉 Now pick a color.`;
+        ? `AI picked ${CNAMES[aic]} (+${gain} tile${gain!==1?'s':''}). Your turn — pick a color!`
+        : `Your tower blocked the AI completely (0 tiles). Great wall! Your turn.`;
       setStatus(aiMsg);
     }
   },700+Math.random()*380);
@@ -1630,7 +1655,9 @@ function resetGame(){
   document.getElementById('consequence').style.display='none';
   document.getElementById('overlay').classList.remove('on');
   var tb=document.getElementById('towerBtn');tb.classList.remove('on');tb.classList.remove('disabled');
-  document.getElementById('towerLeft').textContent='Towers: 3 left';
+  document.getElementById('towerLeft').textContent='3 of 3 remaining';
+  document.querySelectorAll('.tower-slot').forEach(function(s){s.classList.remove('used');});
+  var lm=document.getElementById('aiLastMove');if(lm)lm.className='ai-last-move';
   document.getElementById('aiThinking').textContent='Waiting for you to move first…';
   document.getElementById('aiPulse').style.display='none';
   document.getElementById('biTag').style.display='none';
