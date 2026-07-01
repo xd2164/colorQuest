@@ -1336,6 +1336,8 @@ function previewColor(c){
   cells.forEach(i=>{const el=document.querySelector(`.cell[data-i="${i}"]`);if(el)el.classList.add('preview');});
   if(cells.length>0){setStatus(`${CNAMES[c]}: picking this gains you +${cells.length} tile${cells.length===1?'':'s'}`);showColorTip(c);}
 }
+function showColorTip(){}
+function clearColorTip(){}
 function clearPreview(){
   document.querySelectorAll('.cell.preview').forEach(c=>c.classList.remove('preview'));
   if(!over&&turn===1)setStatus('Hover a color to preview your gain, then click to pick!');clearColorTip();
