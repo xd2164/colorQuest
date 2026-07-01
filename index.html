@@ -203,7 +203,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
 .cell{width:50px;height:50px;border-radius:9px;transition:transform .12s,box-shadow .12s;position:relative;display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid transparent;box-shadow:0 3px 0 rgba(0,0,0,.15);cursor:default}
 .cell.p1{background:var(--p1)!important;border-color:#f48080!important;box-shadow:0 3px 0 rgba(180,20,20,.25)!important;background-image:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0,rgba(255,255,255,.12) 1px,transparent 0,transparent 50%);background-size:6px 6px}
 .cell.ai{background:var(--accent)!important;border-color:#6aaad8!important;box-shadow:0 3px 0 rgba(20,60,140,.25)!important;background-image:radial-gradient(circle,rgba(255,255,255,.15) 1px,transparent 1px);background-size:8px 8px}
-.cell.tower{background:#374151!important;border:3px dashed #f0b429!important;box-shadow:inset 0 0 8px rgba(240,180,40,.2)!important}
+.cell.tower{background:#374151!important;border:3px dashed var(--tower-color,#f0b429)!important;box-shadow:inset 0 0 10px var(--tower-glow,rgba(240,180,40,.25))!important}
 .cell.placeable{cursor:crosshair;animation:glow .8s ease-in-out infinite alternate}
 @keyframes glow{from{box-shadow:0 3px 0 rgba(0,0,0,.15)}to{box-shadow:0 3px 16px rgba(240,180,40,.7)}}
 .cell.preview{animation:prev .55s ease-in-out infinite alternate}
@@ -561,11 +561,11 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:var(--bg)
         <div class="cell-ct" id="cellCount">2 / 64 claimed</div>
       </div>
       <div class="tower-block" id="towerBlock">
-        <div class="col-lbl">Towers (you only)</div>
-        <div class="tower-slots" id="towerSlots"><span class="tower-slot">🏰</span><span class="tower-slot">🏰</span><span class="tower-slot">🏰</span></div>
-        <button class="t-btn" id="towerBtn" onclick="toggleTower()">🏰 Place tower</button>
+        <div class="col-lbl">Towers — <span id="towerConceptName" style="color:#d4950a">Hard Rule</span></div>
+        <div class="tower-slots" id="towerSlots"><span class="tower-slot">🧱</span><span class="tower-slot">🧱</span><span class="tower-slot">🧱</span></div>
+        <button class="t-btn" id="towerBtn" onclick="toggleTower()"><span id="towerBtnIcon">🧱</span> Place tower</button>
         <div class="t-left" id="towerLeft">3 of 3 remaining</div>
-        <div class="t-rule">A tower blocks both players' flood fill. Only you can place them — 3 per game, cannot be moved.</div>
+        <div class="t-rule" id="towerConcept">The Greedy agent maximizes within rules — it can't break walls. Your tower is a hard constraint it must obey.</div>
       </div>
     </div>
 
@@ -873,6 +873,16 @@ const SCENARIOS = {
               desc:'Adaptive: tracks which colors the player favors and updates its counter-strategy each turn. Mirrors online learning. CS concept: behavioral tracking + model update.'},
   passive:   {name:'Passive Learner', type:'Random baseline — no strategy',explore:.9,aggr:.2,risk:.2,learn:.1,strat:'Random',
               desc:'Passive: selects colors largely at random with minimal strategy. Useful baseline for showing what "no learning" looks like. CS concept: random policy.'}
+};
+const TOWER_THEMES = {
+  greedy:    {icon:'🧱', name:'Hard Rule',   color:'#e74c3c', glow:'rgba(231,76,60,.65)',
+    concept:'The Greedy agent maximizes within rules — it can\'t break walls. Your tower is a hard constraint it must obey.'},
+  predictive:{icon:'🔮', name:'Blind Spot',  color:'#9b59b6', glow:'rgba(155,89,182,.65)',
+    concept:'The Predictive agent plans ahead — but can\'t plan through a blind spot. Your tower breaks its lookahead.'},
+  adaptive:  {icon:'🛡️', name:'Guardrail',   color:'#27ae60', glow:'rgba(39,174,96,.65)',
+    concept:'Even an Adaptive agent that learns your habits cannot cross a guardrail. Design rules that constrain what it can optimize.'},
+  passive:   {icon:'🚧', name:'Speed Bump',  color:'#f39c12', glow:'rgba(243,156,18,.65)',
+    concept:'The Passive agent wanders randomly — a speed bump limits its territory without needing strategy.'}
 };
 const PROBLEM_SKILLS = [
   {name:'Pattern Recognition', color:'#8e44ad', desc:'Scan the board before picking. Which color cluster is largest? Where does your territory touch the most tiles? Notice patterns before you act.'},
@@ -1282,7 +1292,7 @@ function renderBoard(){
     const c=document.createElement('div');c.className='cell';c.dataset.i=i;
     if(owner[i]===1)c.classList.add('p1');
     else if(owner[i]===2)c.classList.add('ai');
-    else if(owner[i]===3){c.classList.add('tower');c.textContent='🏰';}
+    else if(owner[i]===3){c.classList.add('tower');c.textContent=(TOWER_THEMES[scenario]||TOWER_THEMES.greedy).icon;}
     else{c.style.background=COLS[board[i]];c.style.borderColor=CLIGHT[board[i]];}
     if(i===p1Pos())c.textContent='👤';
     if(i===aiPos())c.textContent='🤖';
@@ -1591,7 +1601,16 @@ function setScenario(s){
   const keys=['explore','aggr','risk','learn'],ids=['vE','vA','vR','vL'];
   const sliders=document.querySelectorAll('#teacherPanel input[type=range]');
   keys.forEach((k,i)=>{if(sliders[i]){sliders[i].value=aiP[k];document.getElementById(ids[i]).textContent=parseFloat(aiP[k]).toFixed(1);}});
-  log(`📋 Scenario → ${SCENARIOS[s].name}`);setStatus(`AI is now: ${SCENARIOS[s].name}`);
+  // Update scenario-specific tower theme
+  const tt=TOWER_THEMES[s]||TOWER_THEMES.greedy;
+  const board=document.getElementById('board');
+  if(board){board.style.setProperty('--tower-color',tt.color);board.style.setProperty('--tower-glow',tt.glow);}
+  const tIcon=document.getElementById('towerBtnIcon');if(tIcon)tIcon.textContent=tt.icon;
+  const tName=document.getElementById('towerConceptName');if(tName)tName.textContent=tt.name;
+  const tConcept=document.getElementById('towerConcept');if(tConcept)tConcept.textContent=tt.concept;
+  // Update slot icons to match scenario
+  document.querySelectorAll('.tower-slot').forEach(function(sl){if(!sl.classList.contains('used'))sl.textContent=tt.icon;});
+  log(`📋 Scenario → ${SCENARIOS[s].name}`);setStatus(`AI is now: ${SCENARIOS[s].name} — towers are now "${tt.name}" (${tt.icon})`);
 }
 function setP(k,v,id){aiP[k]=parseFloat(v);document.getElementById(id).textContent=parseFloat(v).toFixed(1);log(`🔧 ${k} → ${v}`);}
 function buildObjList(){
