@@ -1352,7 +1352,9 @@ function cellClick(i){
   owner[i]=3;towersLeft--;towersPlaced++;placeTower=false;
   document.getElementById('towerBtn').classList.remove('on');
   document.getElementById('towerLeft').textContent=towersLeft+' towers remaining';
-  sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);renderBoard();setStatus("Wall built! The AI's flood cannot pass through this tile now.");
+  sTower();log(`🏰 Tower at (${Math.floor(i/G)},${i%G})`);
+  advanceCoach();recordHistory();checkWin();
+  if(!over){renderBoard();setStatus("Tower placed — AI must reroute! Watch how it responds.");turn=2;updateTurn();showPredictPrompt();doAI();}
 }
 function toggleTower(){
   if(turn!==1||over)return;
